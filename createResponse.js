@@ -58,7 +58,14 @@ module.exports = {
       return new Promise((resolve, reject) => {
         resolve(responseObject);
       });
-    } else if (command.match(/^stonkey$/i)) {
+
+    } else if (command.match(/^Dead$/i)){
+      console.log('Lmfao this company');
+      reponseObject["files"] = images.death;
+      return new Promise((resolve,object) => {
+        resolve(responseObject);
+      });
+    }else if (command.match(/^stonkey$/i)) {
       console.log('Stonkey!');
       responseObject["files"] = images.stonkey;
       return new Promise((resolve, reject) => {
