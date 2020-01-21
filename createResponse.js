@@ -62,7 +62,7 @@ module.exports = {
     } else if (command.match(/^Dead$/i)){
       console.log('Lmfao this company');
       reponseObject["files"] = images.death;
-      return new Promise((resolve,object) => {
+      return new Promise((resolve,reject) => {
         resolve(responseObject);
       });
     }else if (command.match(/^stonkey$/i)) {
