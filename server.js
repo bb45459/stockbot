@@ -25,10 +25,12 @@ app.post('/dev', (req, res) => {
   let actorId = req.body.actorId;
   let messageId = req.body.data.id;
   let message = req.body.data.message;
-  sendResponseMessage({
-    "roomId": process.env.ROOM_ID,
-    "markdown": message
-  })
+  createResponse.createResponse(message, 'email', 'roomId')
+    .then(result => res.send({
+      ...result,
+      messageId,
+      actorId
+    }));
 });
 
 app.listen(process.env.PORT, () => {

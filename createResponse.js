@@ -11,16 +11,12 @@ module.exports = {
 
     //Scrub the @stockbot tag from the message
     let newMessage = message;
-    console.log(newMessage);
     newMessage = newMessage.split(/ +/);
-    console.log(newMessage);
-    //newMessage.splice(newMessage.indexOf('stockbot'), 1);
     newMessage.shift();
-    console.log(newMessage.slice(1));
-    console.log(newMessage);
     let command = newMessage[0];
-    console.log(command);
-
+    
+    console.log(newMessage);
+    
     //Pick the proper path for the response
     if (command.startsWith('$')) {
       let stockSymbol = command.slice(1);
@@ -35,7 +31,6 @@ module.exports = {
         //Do async job
         request.get(options, function(err, resp, body) {
           if (err) {
-            //throw new Error(err);
             reject(err);
           } else {
             if (body != 'Unknown symbol') {
