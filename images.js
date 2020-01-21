@@ -11,5 +11,5 @@ module.exports = {
     "https://cdn.dribbble.com/users/415975/screenshots/1740996/attachments/281613/Mona_Lisa_Bear_dribBig.jpg",
   ],
   stonkey: 'https://i.redd.it/fk4fykhmay431.jpg',
-  death: 'https://imgur.com/1pGnUqJ',
+  death: 'https://i.imgur.com/1pGnUqJ.jpg',
 }

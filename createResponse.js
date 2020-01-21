@@ -59,7 +59,7 @@ module.exports = {
         resolve(responseObject);
       });
 
-    } else if (command.match(/^Dead$/i)){
+    } else if (command.match(/^at\&t$/i)){
       console.log('Lmfao this company');
       responseObject["files"] = images.death;
       return new Promise((resolve,reject) => {
