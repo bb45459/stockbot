@@ -16,7 +16,7 @@ module.exports = {
     let command = newMessage[0];
     
     console.log(newMessage);
-    
+
     //Pick the proper path for the response
     if (command.startsWith('$')) {
       let stockSymbol = command.slice(1);
@@ -85,15 +85,7 @@ module.exports = {
       return new Promise((resolve, reject) => {
         resolve(responseObject);
       });
-    } 
-    else if (command.match(/stonkwar/i)) {
-      console.log('stonk war');
-      responseObject["files"] = images.stonkwar;
-      return new Promise((resolve, reject) => {
-        //responseObject["markdown"] = "Bull v Bear 2020";
-        resolve(responseObject);
-      });
-    } 
+    }
     else if (command.match(/bull/i)) {
       console.log('Bull');
       return new Promise((resolve, reject) => {
@@ -149,7 +141,7 @@ function findStockYTD(stockSymbol, roomId) {
     });
   });
 }
-/*
+
 function findStockInfo(stockSymbol, roomId) {
   var responseObject = {
     "roomId": roomId,
@@ -181,8 +173,3 @@ function findStockInfo(stockSymbol, roomId) {
     });
   });
 }
-
-
-function getTimeSeriesInfo(stockSymbol, roomId)
-
-*/
