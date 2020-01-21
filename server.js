@@ -15,12 +15,20 @@ app.get('/', (req, res) => {
 app.post('/', (req, res) => {
   let actorId = req.body.actorId;
   let messageId = req.body.data.id;
-  let decryptedMessage = '';
-  if (actorId != process.env.BOT_ID) {
+  if (actorId !== process.env.BOT_ID) {
     console.log("Not the bot message");
-    
     respondToUser(messageId);
   }
+});
+
+app.post('/dev', (req, res) => {
+  let actorId = req.body.actorId;
+  let messageId = req.body.data.id;
+  let message = req.body.data.message;
+  sendResponseMessage({
+    "roomId": process.env.ROOM_ID,
+    "markdown": message
+  })
 });
 
 app.listen(process.env.PORT, () => {
@@ -29,14 +37,16 @@ app.listen(process.env.PORT, () => {
 
 function respondToUser(messageId) {
   let url = 'https://api.ciscospark.com/v1/messages/' + messageId;
-  var options = { method: 'GET',
-  url: url,
-  headers: 
-  { 'Postman-Token': 'd3e37777-18b8-49f9-9f61-1c8ed82c2eba',
-    'cache-control': 'no-cache',
-    Authorization: process.env.BOT_AUTH_TOKEN,
-    'Content-Type': 'application/json' },
-  json: true };
+  var options = {
+    method: 'GET',
+    url: url,
+    headers: {
+      'cache-control': 'no-cache',
+      Authorization: process.env.BOT_AUTH_TOKEN,
+      'Content-Type': 'application/json'
+    },
+    json: true
+  };
 
   rp(options)
     //Get the user's message and send to response creator
@@ -49,10 +59,10 @@ function respondToUser(messageId) {
     })
 
     //Get the response and post it back to the space
-    .then(function(result) {
+    .then(function (result) {
       console.log(result);
       sendResponseMessage(result);
-    }, function(err) {
+    }, function (err) {
       console.log(err.error.message);
     })
 
@@ -65,19 +75,21 @@ function respondToUser(messageId) {
 
 
 function sendResponseMessage(responseObject) {
-  var options = { method: 'POST',
-  url: 'https://api.ciscospark.com/v1/messages/',
-  headers: 
-  { 'Postman-Token': 'd3e37777-18b8-49f9-9f61-1c8ed82c2eba',
-    'cache-control': 'no-cache',
-    Authorization: process.env.BOT_AUTH_TOKEN,
-    'Content-Type': 'application/json' },
-  body: responseObject,
-  json: true };
+  var options = {
+    method: 'POST',
+    url: 'https://api.ciscospark.com/v1/messages/',
+    headers:
+    {
+      'cache-control': 'no-cache',
+      Authorization: `Bearer ${process.env.BOT_AUTH_TOKEN}`,
+      'Content-Type': 'application/json'
+    },
+    body: responseObject,
+    json: true
+  };
 
   request(options, function (error, response, body) {
     if (error) throw new Error(error);
-
     console.log("Response sent!");
   });
 }
