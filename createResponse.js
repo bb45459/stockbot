@@ -85,7 +85,16 @@ module.exports = {
       return new Promise((resolve, reject) => {
         resolve(responseObject);
       });
-    } else if (command.match(/bull/i)) {
+    } 
+    else if (command.match(/stonkwar/i)) {
+      console.log('stonk war');
+      responseObject["files"] = images.stonkwar;
+      return new Promise((resolve, reject) => {
+        //responseObject["markdown"] = "Bull v Bear 2020";
+        resolve(responseObject);
+      });
+    } 
+    else if (command.match(/bull/i)) {
       console.log('Bull');
       return new Promise((resolve, reject) => {
         responseObject["markdown"] = "### 🐂 _Bull markets don't exist_ 🐂";
@@ -140,7 +149,7 @@ function findStockYTD(stockSymbol, roomId) {
     });
   });
 }
-
+/*
 function findStockInfo(stockSymbol, roomId) {
   var responseObject = {
     "roomId": roomId,
@@ -172,3 +181,8 @@ function findStockInfo(stockSymbol, roomId) {
     });
   });
 }
+
+
+function getTimeSeriesInfo(stockSymbol, roomId)
+
+*/

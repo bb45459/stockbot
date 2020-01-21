@@ -11,5 +11,6 @@ module.exports = {
     "https://i.imgur.com/FAtw00Q.jpg"
   ],
   stonkey: 'https://i.redd.it/fk4fykhmay431.jpg',
+  stonkwar : 'https://imgur.com/a/2NLBOko.jpg'
   death: 'https://i.imgur.com/1pGnUqJ.jpg',
 }
