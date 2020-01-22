@@ -3,7 +3,9 @@ const express = require('express');
 var request = require("request");
 var rp = require("request-promise");
 var bodyParser = require('body-parser');
-var createResponse = require('./createResponse.js');
+var createResponse = require('./createResponse');
+var getUsers = require('./db/getUsers');
+var addUsers = require('./db/addUsers');
 
 const app = express();
 app.use(bodyParser.json());
@@ -25,12 +27,19 @@ app.post('/dev', (req, res) => {
   let actorId = req.body.actorId;
   let messageId = req.body.data.id;
   let message = req.body.data.message;
-  createResponse.createResponse(message, 'email', 'roomId')
-    .then(result => res.send({
-      ...result,
-      messageId,
-      actorId
-    }));
+
+  createResponse.createResponse(message, 'email', process.env.ROOM_ID)
+    .then(result => {
+      res.send({
+        ...result,
+        messageId,
+        actorId
+      });
+      sendResponseMessage({
+        roomId: process.env.ROOM_ID,
+        markdown: result.markdown
+      })
+    });
 });
 
 app.listen(process.env.PORT, () => {
@@ -95,3 +104,5 @@ function sendResponseMessage(responseObject) {
     console.log("Response sent!");
   });
 }
+
+exports.sendResponseMessage = sendResponseMessage;

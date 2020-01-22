@@ -1,6 +1,7 @@
 require('dotenv').config();
 var request = require('request');
 var images = require('./images');
+const getUsers = require('./db/getUsers');
 
 module.exports = {
 
@@ -98,6 +99,9 @@ module.exports = {
     } else if (command.match(/ytd/i)) {
       console.log('YTD');
       return findStockYTD(newMessage[1], roomId);
+    } else if (command.match(/users/i)) {
+      console.log('Getting users')
+      return getUsers.getAllUsers();
     } else {
       console.log(command);
       return new Promise((resolve, reject) => {
