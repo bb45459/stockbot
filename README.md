@@ -13,3 +13,12 @@ POST Message to `/dev` must look like:
 }
 ```
 It will respond with what the parsed message to the room would be.
+
+
+## User Stories
+
+- User is able to insert idea into table of backlogs
+
+- Stocktwit API
+
+- Buy and sell stonks
