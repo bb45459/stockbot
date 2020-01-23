@@ -24,8 +24,18 @@ exports.getAllUsers = () => {
                 console.log(error);
             }
     
-            cursor.forEach(iterateFunc, errorFunc);
-    
+            cursor.map(doc =>  { 
+                return { 'name': doc.displayName, 'cash': doc.cash }
+            }).toArray().then(
+                result => {
+                    console.log(result);
+                    resolve({
+                        roomId: process.env.ROOM_ID,
+                        markdown: JSON.stringify(result, null, 2)
+                    })
+                }
+            );
+
             client.close();
         });
     })

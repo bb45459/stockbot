@@ -2,10 +2,11 @@ require('dotenv').config();
 var request = require('request');
 var images = require('./images');
 const getUsers = require('./db/getUsers');
+const addUsers = require('./db/addUsers');
 
 module.exports = {
 
-  createResponse: function(message, user, roomId) {
+  createResponse: function(message, userWebexId, roomId) {
     var responseObject = {
       "roomId": roomId,
     }
@@ -102,6 +103,9 @@ module.exports = {
     } else if (command.match(/users/i)) {
       console.log('Getting users')
       return getUsers.getAllUsers();
+    } else if (command.match(/register/i)) {
+      console.log('Adding one user')
+      return addUsers.addOneUser(userWebexId, newMessage[1] ? newMessage[1] : 'default');
     } else {
       console.log(command);
       return new Promise((resolve, reject) => {

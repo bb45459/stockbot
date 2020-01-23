@@ -19,7 +19,7 @@ app.post('/', (req, res) => {
   let messageId = req.body.data.id;
   if (actorId !== process.env.BOT_ID) {
     console.log("Not the bot message");
-    respondToUser(messageId);
+    respondToUser(messageId, actorId);
   }
 });
 
@@ -46,14 +46,14 @@ app.listen(process.env.PORT, () => {
   console.log('server started at ', process.env.PORT);
 });
 
-function respondToUser(messageId) {
+function respondToUser(messageId, actorId) {
   let url = 'https://api.ciscospark.com/v1/messages/' + messageId;
   var options = {
     method: 'GET',
     url: url,
     headers: {
       'cache-control': 'no-cache',
-      Authorization: process.env.BOT_AUTH_TOKEN,
+      Authorization: `Bearer ${process.env.BOT_AUTH_TOKEN}`,
       'Content-Type': 'application/json'
     },
     json: true
@@ -66,7 +66,7 @@ function respondToUser(messageId) {
       let user = body.personEmail;
       let roomId = body.roomId;
       console.log(body.text);
-      return createResponse.createResponse(message, user, roomId);
+      return createResponse.createResponse(message, actorId, roomId);
     })
 
     //Get the response and post it back to the space
