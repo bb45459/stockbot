@@ -6,6 +6,7 @@ var bodyParser = require('body-parser');
 var createResponse = require('./createResponse');
 const stockQuoteTemplate = require('./adaptiveCards/stockQuote/stockQuoteTemplate');
 var ACData = require("adaptivecards-templating");
+var AdaptiveCards = require("adaptivecards");
 var moment = require("moment");
 
 const app = express();
@@ -89,7 +90,7 @@ function respondToUser(messageId, actorId) {
 
     //Get the response and post it back to the space
     .then(function (result) {
-      console.log(result);
+      // console.log(result);
       sendResponseMessage(result);
     }, function (err) {
       console.log(err.error.message);
@@ -120,7 +121,7 @@ function sendResponseMessage(responseObject) {
   request(options, function (error, response, body) {
     if (error) throw new Error(error);
     console.log("Response sent!");
-    console.log(body);
+    // console.log(body);
   });
 }
 

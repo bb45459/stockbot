@@ -179,6 +179,7 @@ function findStockPrice(stockSymbol, roomId) {
       } else {
         if (body != 'Unknown symbol') {
           let responseBody = JSON.parse(body);
+          console.log(responseBody);
           const d = moment(responseBody.latestUpdate).format('YYYY-MM-DDTHH:MM:SSZ');
           responseBody.latestUpdateString = d;
           responseObject["markdown"] =
@@ -188,7 +189,10 @@ function findStockPrice(stockSymbol, roomId) {
           var template = new ACData.Template(stockQuoteTemplate);
           var context = new ACData.EvaluationContext();
           context.$root = {
-            ...quoteData
+            ...responseBody,
+            logoUrl: 'https://storage.googleapis.com/iex/api/logos/'+responseBody.symbol+'.png',
+            weekFiveTwoHigh: responseBody.week52High,
+            weekFiveTwoLow: responseBody.week52Low,
           }
           var card = template.expand(context);
           responseObject["attachments"] = [

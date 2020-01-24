@@ -4,26 +4,45 @@
     "version": "1.0",
     "body": [
         {
-            "type": "Container",
-            "items": [
-                {
+            "type": "ColumnSet",
+            "columns": [
+              {
+                "type": "Column",
+                "items": [
+                  {
+                    "type": "Image",
+                    "altText": "",
+                    "url": "{logoUrl}",
+                    "size": "small"
+                  }
+                ],
+                "width": "auto"
+              },
+              {
+                "type": "Column",
+                "items": [
+                  {
                     "type": "TextBlock",
                     "text": "{companyName}",
                     "size": "Medium",
                     "wrap": true
-                },
-                {
-                    "type": "TextBlock",
-                    "text": "{symbol}",
-                    "isSubtle": true,
-                    "spacing": "Small",
-                    "wrap": true
-                },
-                {
-                    "type": "TextBlock",
-                    "text": "{{DATE({latestUpdateString}, SHORT)}} {{TIME({latestUpdateString})}}"
-                }
+                  },
+                  {
+                      "type": "TextBlock",
+                      "text": "{symbol}",
+                      "isSubtle": true,
+                      "spacing": "Small",
+                      "wrap": true
+                  }
+                ],
+                "width": "stretch"
+              }
             ]
+        },
+        {
+          "type": "TextBlock",
+          "text": "{{DATE({latestUpdateString}, SHORT)}} {{TIME({latestUpdateString})}}",
+          "wrap": true
         },
         {
             "type": "Container",
