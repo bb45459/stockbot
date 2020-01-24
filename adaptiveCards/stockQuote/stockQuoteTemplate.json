@@ -1,0 +1,99 @@
+{
+    "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+    "type": "AdaptiveCard",
+    "version": "1.0",
+    "body": [
+        {
+            "type": "ColumnSet",
+            "columns": [
+              {
+                "type": "Column",
+                "items": [
+                  {
+                    "type": "Image",
+                    "altText": "",
+                    "url": "{logoUrl}",
+                    "size": "small"
+                  }
+                ],
+                "width": "auto"
+              },
+              {
+                "type": "Column",
+                "items": [
+                  {
+                    "type": "TextBlock",
+                    "text": "{companyName}",
+                    "size": "Medium",
+                    "wrap": true
+                  },
+                  {
+                      "type": "TextBlock",
+                      "text": "{symbol}",
+                      "isSubtle": true,
+                      "spacing": "Small",
+                      "wrap": true
+                  }
+                ],
+                "width": "stretch"
+              }
+            ]
+        },
+        {
+          "type": "TextBlock",
+          "text": "{{DATE({latestUpdateString}, SHORT)}} {{TIME({latestUpdateString})}}",
+          "wrap": true
+        },
+        {
+            "type": "Container",
+            "spacing": "None",
+            "items": [
+                {
+                    "type": "ColumnSet",
+                    "columns": [
+                        {
+                            "type": "Column",
+                            "width": "stretch",
+                            "items": [
+                                {
+                                    "type": "TextBlock",
+                                    "text": "{latestPrice} ",
+                                    "size": "ExtraLarge"
+                                },
+                                {
+                                    "type": "TextBlock",
+                                    "text": "{if(change >= 0, '▲', '▼')} USD {change} ({changePercent * 100}%)",
+                                    "color": "{if(change >= 0, 'good', 'attention')}",
+                                    "spacing": "None"
+                                }
+                            ]
+                        },
+                        {
+                            "type": "Column",
+                            "width": "auto",
+                            "items": [
+                                {
+                                    "type": "FactSet",
+                                    "facts": [
+                                        {
+                                            "title": "52W High",
+                                            "value": "{weekFiveTwoHigh} "
+                                        },
+                                        {
+                                            "title": "52W Low",
+                                            "value": "{weekFiveTwoLow} "
+                                        },
+                                        {
+                                            "title": "P/E Ratio",
+                                            "value": "{peRatio} "
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
