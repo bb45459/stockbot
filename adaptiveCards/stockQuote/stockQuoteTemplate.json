@@ -57,16 +57,16 @@
                                     "type": "FactSet",
                                     "facts": [
                                         {
-                                            "title": "Open",
-                                            "value": "{open} "
+                                            "title": "52W High",
+                                            "value": "{weekFiveTwoHigh} "
                                         },
                                         {
-                                            "title": "High",
-                                            "value": "{high} "
+                                            "title": "52W Low",
+                                            "value": "{weekFiveTwoLow} "
                                         },
                                         {
-                                            "title": "Low",
-                                            "value": "{low} "
+                                            "title": "P/E Ratio",
+                                            "value": "{peRatio} "
                                         }
                                     ]
                                 }

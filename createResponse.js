@@ -3,6 +3,9 @@ var request = require('request');
 var images = require('./images');
 const getUsers = require('./db/getUsers');
 const addUsers = require('./db/addUsers');
+const stockQuoteTemplate = require('./adaptiveCards/stockQuote/stockQuoteTemplate');
+var moment = require("moment");
+var ACData = require("adaptivecards-templating");
 
 module.exports = {
 
@@ -22,33 +25,7 @@ module.exports = {
     //Pick the proper path for the response
     if (command.startsWith('$')) {
       let stockSymbol = command.slice(1);
-      let apiUrl = `https://cloud.iexapis.com/stable/stock/${stockSymbol}/quote?token=${process.env.IEX_TOKEN}`;
-
-      console.log(apiUrl);
-
-      var options = {
-        url: apiUrl,
-      };
-      return new Promise(function(resolve, reject) {
-        //Do async job
-        request.get(options, function(err, resp, body) {
-          if (err) {
-            reject(err);
-          } else {
-            if (body != 'Unknown symbol') {
-              let responseBody = JSON.parse(body);
-              console.log('LatestPrice: ' + responseBody.latestPrice);
-              console.log('Change: ' + responseBody.change);
-              responseObject["markdown"] =
-                `#${responseBody.symbol}: \u0024${responseBody.latestPrice} (${responseBody.change}, ${(responseBody.changePercent * 100).toFixed(3)}%)`;
-              resolve(responseObject);
-            } else {
-              responseObject["markdown"] = "I couldn't find that stock";
-              resolve(responseObject);
-            }
-          }
-        });
-      });
+      return findStockPrice(stockSymbol, roomId);
     } else if (command.match(/^stonks$/i)) {
       console.log('Stonks!');
       responseObject["files"] = images.stonks;
@@ -172,6 +149,56 @@ function findStockInfo(stockSymbol, roomId) {
           let responseBody = JSON.parse(body);
           console.log(responseBody);
           responseObject["markdown"] = responseBody.symbol + ': ' + responseBody.description;
+          resolve(responseObject);
+        } else {
+          responseObject["markdown"] = "I couldn't find that stock";
+          resolve(responseObject);
+        }
+      }
+    });
+  });
+}
+
+function findStockPrice(stockSymbol, roomId) {
+  let responseObject = {
+    "roomId": roomId,
+  };
+  let apiUrl = `https://cloud.iexapis.com/stable/stock/${stockSymbol}/quote?token=${process.env.IEX_TOKEN}`;
+
+  console.log(apiUrl);
+
+  var options = {
+    url: apiUrl,
+  };
+  return new Promise(function(resolve, reject) {
+    //Do async job
+    request.get(options, function(err, resp, body) {
+      if (err) {
+        //throw new Error(err);
+        reject(err);
+      } else {
+        if (body != 'Unknown symbol') {
+          let responseBody = JSON.parse(body);
+          const d = moment(responseBody.latestUpdate).format('YYYY-MM-DDTHH:MM:SSZ');
+          responseBody.latestUpdateString = d;
+          responseObject["markdown"] =
+            `#${responseBody.symbol}: \u0024${responseBody.latestPrice} (${responseBody.change}, ${(responseBody.changePercent * 100).toFixed(3)}%)`;
+          
+          // Made adaptive card
+          var template = new ACData.Template(stockQuoteTemplate);
+          var context = new ACData.EvaluationContext();
+          context.$root = {
+            ...quoteData
+          }
+          var card = template.expand(context);
+          responseObject["attachments"] = [
+            {
+              "contentType": "application/vnd.microsoft.card.adaptive",
+              "content": {
+                ...card
+              }
+            }
+          ];
           resolve(responseObject);
         } else {
           responseObject["markdown"] = "I couldn't find that stock";

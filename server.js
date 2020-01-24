@@ -5,9 +5,7 @@ var rp = require("request-promise");
 var bodyParser = require('body-parser');
 var createResponse = require('./createResponse');
 const stockQuoteTemplate = require('./adaptiveCards/stockQuote/stockQuoteTemplate');
-const stockQuoteData = require('./adaptiveCards/stockQuote/stockQuoteData');
 var ACData = require("adaptivecards-templating");
-var AdaptiveCards = require("adaptivecards");
 var moment = require("moment");
 
 const app = express();
@@ -30,19 +28,6 @@ app.post('/dev', (req, res) => {
   let actorId = req.body.actorId;
   let messageId = req.body.data.id;
   let message = req.body.data.message;
-
-  // createResponse.createResponse(message, 'email', process.env.ROOM_ID)
-  //   .then(result => {
-  //     res.send({
-  //       ...result,
-  //       messageId,
-  //       actorId
-  //     });
-  //     sendResponseMessage({
-  //       roomId: process.env.ROOM_ID,
-  //       markdown: result.markdown
-  //     })
-  //   });
 
   var template = new ACData.Template(stockQuoteTemplate);
   var context = new ACData.EvaluationContext();
@@ -73,27 +58,6 @@ app.post('/dev', (req, res) => {
         markdown: err
       })
     })
-  // context.$root = {
-  //   ...stockQuoteData
-  // };
-  // var card = template.expand(context);
-  // console.log(card);
-  // var adaptiveCard = new AdaptiveCards.AdaptiveCard();
-  // adaptiveCard.parse(card);
-  // console.log(adaptiveCard.toJSON);
-  // sendResponseMessage({
-  //   roomId: process.env.ROOM_ID,
-  //   text: 'test',
-  //   attachments: [
-  //     {
-  //       "contentType": "application/vnd.microsoft.card.adaptive",
-  //       "content": {
-  //         ...card
-  //       }
-  //     }
-  //   ]
-  // })
-  // res.send(200);
 });
 
 app.listen(process.env.PORT, () => {
@@ -180,9 +144,7 @@ function findStockPrice(stockSymbol, roomId) {
       } else {
         if (body != 'Unknown symbol') {
           let responseBody = JSON.parse(body);
-          console.log(responseBody);
           const d = moment(responseBody.latestUpdate).format('YYYY:MM:DDTHH:MM:SSZ');
-          console.log(d);
           responseBody.latestUpdateString = '2020-01-23T20:59:59Z';
           resolve(responseBody);
         } else {
