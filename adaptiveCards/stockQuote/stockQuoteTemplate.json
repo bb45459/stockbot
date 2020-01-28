@@ -62,7 +62,7 @@
                                 },
                                 {
                                     "type": "TextBlock",
-                                    "text": "{if(change >= 0, '▲', '▼')} USD {change} ({changePercent * 100}%)",
+                                    "text": "{if(change >= 0, '▲', '▼')} USD {change} ({changePercent}%)",
                                     "color": "{if(change >= 0, 'good', 'attention')}",
                                     "spacing": "None"
                                 }

@@ -8,6 +8,7 @@ const stockQuoteTemplate = require('./adaptiveCards/stockQuote/stockQuoteTemplat
 var ACData = require("adaptivecards-templating");
 var AdaptiveCards = require("adaptivecards");
 var moment = require("moment");
+var buyStocks = require('./db/buyStocks');
 
 const app = express();
 app.use(bodyParser.json());
@@ -30,35 +31,40 @@ app.post('/dev', (req, res) => {
   let messageId = req.body.data.id;
   let message = req.body.data.message;
 
-  var template = new ACData.Template(stockQuoteTemplate);
-  var context = new ACData.EvaluationContext();
-  findStockPrice(message, process.env.ROOM_ID)
-    .then(quoteData => {
-      context.$root = {
-        ...quoteData
-      }
-      var card = template.expand(context);
-      console.log(card);
-      sendResponseMessage({
-        roomId: process.env.ROOM_ID,
-        text: 'test',
-        attachments: [
-          {
-            "contentType": "application/vnd.microsoft.card.adaptive",
-            "content": {
-              ...card
-            }
-          }
-        ]
-      })
-      res.send(200);
+  buyStocks.buyStocks(actorId, 'tsla', 2)
+    .then(result => {
+      res.send(result);
     })
-    .catch(err => {
-      sendResponseMessage({
-        roomId: process.env.ROOM_ID,
-        markdown: err
-      })
-    })
+
+  // var template = new ACData.Template(stockQuoteTemplate);
+  // var context = new ACData.EvaluationContext();
+  // findStockPrice(message, process.env.ROOM_ID)
+  //   .then(quoteData => {
+  //     context.$root = {
+  //       ...quoteData
+  //     }
+  //     var card = template.expand(context);
+  //     console.log(card);
+  //     sendResponseMessage({
+  //       roomId: process.env.ROOM_ID,
+  //       text: 'test',
+  //       attachments: [
+  //         {
+  //           "contentType": "application/vnd.microsoft.card.adaptive",
+  //           "content": {
+  //             ...card
+  //           }
+  //         }
+  //       ]
+  //     })
+  //     res.send(200);
+  //   })
+  //   .catch(err => {
+  //     sendResponseMessage({
+  //       roomId: process.env.ROOM_ID,
+  //       markdown: err
+  //     })
+  //   })
 });
 
 app.listen(process.env.PORT, () => {
@@ -121,7 +127,7 @@ function sendResponseMessage(responseObject) {
   request(options, function (error, response, body) {
     if (error) throw new Error(error);
     console.log("Response sent!");
-    // console.log(body);
+    console.log(body);
   });
 }
 

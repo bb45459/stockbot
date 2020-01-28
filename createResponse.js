@@ -3,6 +3,7 @@ var request = require('request');
 var images = require('./images');
 const getUsers = require('./db/getUsers');
 const addUsers = require('./db/addUsers');
+const buyStocks = require('./db/buyStocks');
 const stockQuoteTemplate = require('./adaptiveCards/stockQuote/stockQuoteTemplate');
 var moment = require("moment");
 var ACData = require("adaptivecards-templating");
@@ -83,6 +84,8 @@ module.exports = {
     } else if (command.match(/register/i)) {
       console.log('Adding one user')
       return addUsers.addOneUser(userWebexId, newMessage[1] ? newMessage[1] : 'default');
+    } else if (command.match(/buy/i)) {
+      return buyStocks.buyStocks(userWebexId, newMessage[1], newMessage[2]);
     } else {
       console.log(command);
       return new Promise((resolve, reject) => {
@@ -163,7 +166,7 @@ function findStockPrice(stockSymbol, roomId) {
   let responseObject = {
     "roomId": roomId,
   };
-  let apiUrl = `https://cloud.iexapis.com/stable/stock/${stockSymbol}/quote?token=${process.env.IEX_TOKEN}`;
+  let apiUrl = `https://cloud.iexapis.com/stable/stock/${stockSymbol}/quote?token=${process.env.IEX_TOKEN}&displayPercent=true`;
 
   console.log(apiUrl);
 
@@ -180,10 +183,12 @@ function findStockPrice(stockSymbol, roomId) {
         if (body != 'Unknown symbol') {
           let responseBody = JSON.parse(body);
           console.log(responseBody);
-          const d = moment(responseBody.latestUpdate).format('YYYY-MM-DDTHH:MM:SSZ');
+          // 'YYYY-MM-DDTHH:MM:SSZ'
+          const d = moment(responseBody.latestUpdate).format();
           responseBody.latestUpdateString = d;
+          responseBody.changePercent = responseBody.changePercent ? responseBody.changePercent.toFixed(3) : 'N/A';
           responseObject["markdown"] =
-            `#${responseBody.symbol}: \u0024${responseBody.latestPrice} (${responseBody.change}, ${(responseBody.changePercent * 100).toFixed(3)}%)`;
+            `#${responseBody.symbol}: \u0024${responseBody.latestPrice} (${responseBody.change}, ${responseBody.changePercent}%)`;
           
           // Made adaptive card
           var template = new ACData.Template(stockQuoteTemplate);
@@ -193,7 +198,9 @@ function findStockPrice(stockSymbol, roomId) {
             logoUrl: 'https://storage.googleapis.com/iex/api/logos/'+responseBody.symbol+'.png',
             weekFiveTwoHigh: responseBody.week52High,
             weekFiveTwoLow: responseBody.week52Low,
+            changePercent: responseBody.changePercent
           }
+          console.log(context);
           var card = template.expand(context);
           responseObject["attachments"] = [
             {
