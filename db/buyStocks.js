@@ -36,28 +36,25 @@ exports.buyStocks = (userWebexId, stockSymbol, quantity) => {
                                     sold: false
                                 });
                             } else {
-                                return false
+                                throw new Error('Not enough money');
                             }
                         });
                 })
                 .then(insertSuccess => {
-                    if (insertSuccess) {
-                        resolve({
-                            roomId: process.env.ROOM_ID,
-                            markdown: `Bought ${quantity} of ${stockSymbol}`
-                        });
-                    } else {
-                        resolve({
-                            roomId: process.env.ROOM_ID,
-                            markdown: 'Not enough money'
-                        });
-                    }
+                    console.log(insertSuccess.ops[0].purchasePrice * insertSuccess.ops[0].quantity);
+                    const totalPrice = insertSuccess.ops[0].purchasePrice * insertSuccess.ops[0].quantity;
+                    return db.collection('users').updateOne(
+                        { webexId: userWebexId },
+                        [
+                            { $set: { cash: { $subtract: ["$cash", totalPrice] } } }
+                        ]
+                    );
+                })
+                .then(() => {
+                    resolve({ markdown: `Bought ${quantity} of ${stockSymbol}`})
                 })
                 .catch(err => {
-                    resolve({
-                        roomId: process.env.ROOM_ID,
-                        markdown: err
-                    })
+                    resolve({ markdown: err })
                 })
                 .finally(() => client.close());
         });

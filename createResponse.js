@@ -29,31 +29,25 @@ module.exports = {
       return findStockPrice(stockSymbol, roomId);
     } else if (command.match(/^stonks$/i)) {
       console.log('Stonks!');
-      responseObject["files"] = images.stonks;
       return { files: images.stonks };
     } else if (command.match(/^at\&t$/i)){
       console.log('Lmfao this company');
-      responseObject["files"] = images.death;
       return { files: images.death };
     } else if (command.match(/^stonkey$/i)) {
       console.log('Stonkey!');
-      responseObject["files"] = images.stonkey;
       return { files: images.stonkey };
     } else if (command.match(/^wednesday$/i)) {
       console.log('Wednesday');
       let date = new Date();
       let dayOfWeek = date.getDay();
       if (dayOfWeek == 3) {
-        responseObject["files"] = images.wednesday;
         return { files: images.wednesday };
       } else {
-        responseObject["markdown"] = 'It is not Wednesday yet my dudes';
         return { markdown: 'It is not Wednesday yet my dudes' };
       }
     } else if (command.match(/bear/i)) {
       console.log('Bear');
-      let randInt = Math.floor(Math.random() * images.bears.length);
-      responseObject["files"] = images.bears[randInt];
+      const randInt = Math.floor(Math.random() * images.bears.length);
       return { files: images.bears[randInt] };
     } else if (command.match(/bull/i)) {
       console.log('Bull');
