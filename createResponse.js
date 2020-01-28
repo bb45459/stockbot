@@ -4,6 +4,7 @@ var images = require('./images');
 const getUsers = require('./db/getUsers');
 const addUsers = require('./db/addUsers');
 const buyStocks = require('./db/buyStocks');
+const getStocks = require('./db/getStocks');
 const stockQuoteTemplate = require('./adaptiveCards/stockQuote/stockQuoteTemplate');
 var moment = require("moment");
 var ACData = require("adaptivecards-templating");
@@ -62,6 +63,8 @@ module.exports = {
       return addUsers.addOneUser(userWebexId, newMessage[1] ? newMessage[1] : 'default');
     } else if (command.match(/buy/i)) {
       return buyStocks.buyStocks(userWebexId, newMessage[1], newMessage[2]);
+    } else if (command.match(/portfolio/i)) {
+      return getStocks.getOwnedStocks(userWebexId);
     } else {
       console.log(command);
       return Promise.resolve({ markdown: 'Unable to parse user message 🚀' });
