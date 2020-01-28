@@ -31,10 +31,10 @@ app.post('/dev', (req, res) => {
   let messageId = req.body.data.id;
   let message = req.body.data.message;
 
-  buyStocks.buyStocks(actorId, 'tsla', 5)
+  buyStocks.buyStocks(actorId, 'tsla', 50000)
     .then(result => {
       res.send(result);
-    })
+    }, rej => res.send(rej));
 
   // var template = new ACData.Template(stockQuoteTemplate);
   // var context = new ACData.EvaluationContext();
@@ -95,7 +95,6 @@ function respondToUser(messageId, actorId) {
 
     //Get the response and post it back to the space
     .then(function (result) {
-      // console.log(result);
       sendResponseMessage(result);
     }, function (err) {
       console.log(err.error.message);

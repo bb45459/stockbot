@@ -12,18 +12,6 @@ exports.getAllUsers = () => {
             const db = client.db('stockbot');
             var cursor = db.collection('users').find({});
     
-            function iterateFunc(doc) {
-                console.log(JSON.stringify(doc, null, 4));
-                resolve({
-                    roomId: process.env.ROOM_ID,
-                    markdown: JSON.stringify(doc, null, 4)
-                });
-            }
-    
-            function errorFunc(error) {
-                console.log(error);
-            }
-    
             cursor.map(doc =>  { 
                 return { 'name': doc.displayName, 'cash': doc.cash }
             }).toArray().then(

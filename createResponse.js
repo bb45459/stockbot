@@ -11,10 +11,6 @@ var ACData = require("adaptivecards-templating");
 module.exports = {
 
   createResponse: function(message, userWebexId, roomId) {
-    var responseObject = {
-      "roomId": roomId,
-    }
-
     //Scrub the @stockbot tag from the message
     let newMessage = message;
     newMessage = newMessage.split(/ +/);
@@ -26,32 +22,32 @@ module.exports = {
     //Pick the proper path for the response
     if (command.startsWith('$')) {
       let stockSymbol = command.slice(1);
-      return findStockPrice(stockSymbol, roomId);
+      return Promise.resolve(findStockPrice(stockSymbol, roomId));
     } else if (command.match(/^stonks$/i)) {
       console.log('Stonks!');
-      return { files: images.stonks };
+      return Promise.resolve({ files: images.stonks });
     } else if (command.match(/^at\&t$/i)){
       console.log('Lmfao this company');
-      return { files: images.death };
+      return Promise.resolve({ files: images.death });
     } else if (command.match(/^stonkey$/i)) {
       console.log('Stonkey!');
-      return { files: images.stonkey };
+      return Promise.resolve({ files: images.stonkey });
     } else if (command.match(/^wednesday$/i)) {
       console.log('Wednesday');
       let date = new Date();
       let dayOfWeek = date.getDay();
       if (dayOfWeek == 3) {
-        return { files: images.wednesday };
+        return Promise.resolve({ files: images.wednesday });
       } else {
-        return { markdown: 'It is not Wednesday yet my dudes' };
+        return Promise.resolve({ markdown: 'It is not Wednesday yet my dudes' });
       }
     } else if (command.match(/bear/i)) {
       console.log('Bear');
       const randInt = Math.floor(Math.random() * images.bears.length);
-      return { files: images.bears[randInt] };
+      return Promise.resolve({ files: images.bears[randInt] });
     } else if (command.match(/bull/i)) {
       console.log('Bull');
-      return { markdown: "### 🐂 _Bull markets don't exist_ 🐂" };
+      return Promise.resolve({ markdown: "### 🐂 _Bull markets don't exist_ 🐂" });
     } else if (command.match(/info/i)) {
       console.log('Info');
       return findStockInfo(newMessage[1], roomId);
@@ -68,7 +64,7 @@ module.exports = {
       return buyStocks.buyStocks(userWebexId, newMessage[1], newMessage[2]);
     } else {
       console.log(command);
-      return { markdown: 'Unable to parse user message 🚀' };
+      return Promise.resolve({ markdown: 'Unable to parse user message 🚀' });
     }
   }
 

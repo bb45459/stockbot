@@ -15,7 +15,7 @@ exports.buyStocks = (userWebexId, stockSymbol, quantity) => {
     // Connection URL
     const url = `mongodb+srv://${process.env.MONGODB_USER}:${process.env.MONGODB_PW}@${process.env.MONGODB_HOSTLIST}/stockbot?retryWrites=true&w=majority`;
 
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
         // Use connect method to connect to the Server
         MongoClient.connect(url, function(err, client) {
             assert.equal(null, err);
@@ -36,12 +36,11 @@ exports.buyStocks = (userWebexId, stockSymbol, quantity) => {
                                     sold: false
                                 });
                             } else {
-                                throw new Error('Not enough money');
+                                return Promise.reject('Not enough money');
                             }
                         });
                 })
                 .then(insertSuccess => {
-                    console.log(insertSuccess.ops[0].purchasePrice * insertSuccess.ops[0].quantity);
                     const totalPrice = insertSuccess.ops[0].purchasePrice * insertSuccess.ops[0].quantity;
                     return db.collection('users').updateOne(
                         { webexId: userWebexId },
@@ -51,9 +50,10 @@ exports.buyStocks = (userWebexId, stockSymbol, quantity) => {
                     );
                 })
                 .then(() => {
-                    resolve({ markdown: `Bought ${quantity} of ${stockSymbol}`})
+                        resolve({ markdown: `Bought ${quantity} of ${stockSymbol}`})
                 })
                 .catch(err => {
+                    console.log(err);
                     resolve({ markdown: err })
                 })
                 .finally(() => client.close());
