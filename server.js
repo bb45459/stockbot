@@ -17,7 +17,7 @@ app.get('/', (req, res) => {
   res.send('Hello Express app!')
 });
 
-app.post('/', (req, res) => {
+app.post('/', (req) => {
   let actorId = req.body.actorId;
   let messageId = req.body.data.id;
   if (actorId !== process.env.BOT_ID) {
@@ -31,7 +31,7 @@ app.post('/dev', (req, res) => {
   let messageId = req.body.data.id;
   let message = req.body.data.message;
 
-  buyStocks.buyStocks(actorId, 'tsla', 2)
+  buyStocks.buyStocks(actorId, 'tsla', 5)
     .then(result => {
       res.send(result);
     })
@@ -88,7 +88,6 @@ function respondToUser(messageId, actorId) {
     //Get the user's message and send to response creator
     .then(function (body) {
       let message = body.text;
-      let user = body.personEmail;
       let roomId = body.roomId;
       console.log(body.text);
       return createResponse.createResponse(message, actorId, roomId);
@@ -120,7 +119,10 @@ function sendResponseMessage(responseObject) {
       Authorization: `Bearer ${process.env.BOT_AUTH_TOKEN}`,
       'Content-Type': 'application/json'
     },
-    body: responseObject,
+    body: {
+      roomId: process.env.ROOM_ID,
+      ...responseObject
+    },
     json: true
   };
 
@@ -128,38 +130,6 @@ function sendResponseMessage(responseObject) {
     if (error) throw new Error(error);
     console.log("Response sent!");
     console.log(body);
-  });
-}
-
-function findStockPrice(stockSymbol, roomId) {
-  var responseObject = {
-    "roomId": roomId,
-  };
-  let apiUrl = `https://cloud.iexapis.com/stable/stock/${stockSymbol}/quote?token=${process.env.IEX_TOKEN}`;
-
-  console.log(apiUrl);
-
-  var options = {
-    url: apiUrl,
-  };
-  return new Promise(function(resolve, reject) {
-    //Do async job
-    request.get(options, function(err, resp, body) {
-      if (err) {
-        //throw new Error(err);
-        reject(err);
-      } else {
-        if (body != 'Unknown symbol') {
-          let responseBody = JSON.parse(body);
-          const d = moment(responseBody.latestUpdate).format('YYYY:MM:DDTHH:MM:SSZ');
-          responseBody.latestUpdateString = '2020-01-23T20:59:59Z';
-          resolve(responseBody);
-        } else {
-          responseObject["markdown"] = "I couldn't find that stock";
-          reject(responseObject);
-        }
-      }
-    });
   });
 }
 

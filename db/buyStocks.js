@@ -11,7 +11,7 @@ const MongoClient = require('mongodb').MongoClient;
 const assert = require('assert');
 var request = require('request');
 
-exports.buyStocks = (userWebexId, stockSymbol='T', quantity='1') => {
+exports.buyStocks = (userWebexId, stockSymbol, quantity) => {
     // Connection URL
     const url = `mongodb+srv://${process.env.MONGODB_USER}:${process.env.MONGODB_PW}@${process.env.MONGODB_HOSTLIST}/stockbot?retryWrites=true&w=majority`;
 
@@ -24,27 +24,42 @@ exports.buyStocks = (userWebexId, stockSymbol='T', quantity='1') => {
 
             findStockPrice(stockSymbol)
                 .then(price => {
-                    console.log('Price:', price);
-                    return price * quantity;
+                    return usersCursor
+                        .then(res => {
+                            if (price * quantity < res.cash) {
+                                return db.collection('trades').insertOne({
+                                    symbol: stockSymbol,
+                                    webexId: userWebexId,
+                                    purchasePrice: price,
+                                    purchaseTime: new Date(),
+                                    quantity: quantity,
+                                    sold: false
+                                });
+                            } else {
+                                return false
+                            }
+                        });
                 })
-                .then(totalPrice => {
-                    console.log('Total price', totalPrice);
-                    usersCursor.then(res => console.log(res));
-                    usersCursor.then(res => {
-                        if (totalPrice < res.cash) {
-                            resolve({
-                                roomId: process.env.ROOM_ID,
-                                markdown: 'Can purchase'
-                            });
-                        } else {
-                            resolve({
-                                roomId: process.env.ROOM_ID,
-                                markdown: 'Cannot purchase'
-                            });
-                        }
-                    });
-                    client.close();
-                });
+                .then(insertSuccess => {
+                    if (insertSuccess) {
+                        resolve({
+                            roomId: process.env.ROOM_ID,
+                            markdown: `Bought ${quantity} of ${stockSymbol}`
+                        });
+                    } else {
+                        resolve({
+                            roomId: process.env.ROOM_ID,
+                            markdown: 'Not enough money'
+                        });
+                    }
+                })
+                .catch(err => {
+                    resolve({
+                        roomId: process.env.ROOM_ID,
+                        markdown: err
+                    })
+                })
+                .finally(() => client.close());
         });
     });
 }
@@ -65,7 +80,6 @@ function findStockPrice(stockSymbol) {
         } else {
           if (body !== 'Unknown symbol') {
             let responseBody = JSON.parse(body);
-            console.log(responseBody);
             resolve(responseBody.latestPrice);
           } else {
             reject("I couldn't find that stock");
