@@ -9,6 +9,7 @@ var ACData = require("adaptivecards-templating");
 var AdaptiveCards = require("adaptivecards");
 var moment = require("moment");
 var buyStocks = require('./db/buyStocks');
+var sellStocks = require('./db/sellStocks');
 
 const app = express();
 app.use(bodyParser.json());
@@ -31,10 +32,14 @@ app.post('/dev', (req, res) => {
   let messageId = req.body.data.id;
   let message = req.body.data.message;
 
-  buyStocks.buyStocks(actorId, 'tsla', 50000)
-    .then(result => {
-      res.send(result);
-    }, rej => res.send(rej));
+  // buyStocks.buyStocks(actorId, 'tsla', 50000)
+  //   .then(result => {
+  //     res.send(result);
+  //   }, rej => res.send(rej));
+
+  // createResponse.createResponse('stockbot $f', 'webexid', 'roomid');
+  sellStocks.sellStocks(actorId, 't', 1);
+  res.sendStatus(200);
 
   // var template = new ACData.Template(stockQuoteTemplate);
   // var context = new ACData.EvaluationContext();

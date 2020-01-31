@@ -26,17 +26,22 @@ exports.buyStocks = (userWebexId, stockSymbol, quantity) => {
                 .then(price => {
                     return usersCursor
                         .then(res => {
-                            if (price * quantity < res.cash) {
-                                return db.collection('trades').insertOne({
-                                    symbol: stockSymbol,
-                                    webexId: userWebexId,
-                                    purchasePrice: price,
-                                    purchaseTime: new Date(),
-                                    quantity: quantity,
-                                    sold: false
-                                });
+                            if (res.cash) {
+                                if (price * quantity < res.cash) {
+                                    return db.collection('trades').insertOne({
+                                        symbol: stockSymbol,
+                                        webexId: userWebexId,
+                                        purchasePrice: price,
+                                        purchaseTime: new Date(),
+                                        quantity: Number.parseInt(quantity),
+                                        quantityOwned: Number.parseInt(quantity),
+                                        sold: false
+                                    });
+                                } else {
+                                    return Promise.reject('Not enough money');
+                                }
                             } else {
-                                return Promise.reject('Not enough money');
+                                return Promise.reject('Cannot find that user');
                             }
                         });
                 })

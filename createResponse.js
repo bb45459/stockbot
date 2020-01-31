@@ -1,10 +1,12 @@
 require('dotenv').config();
 var request = require('request');
+var rp = require('request-promise');
 var images = require('./images');
 const getUsers = require('./db/getUsers');
 const addUsers = require('./db/addUsers');
 const buyStocks = require('./db/buyStocks');
 const getStocks = require('./db/getStocks');
+var sellStocks = require('./db/sellStocks');
 const stockQuoteTemplate = require('./adaptiveCards/stockQuote/stockQuoteTemplate');
 var moment = require("moment");
 var ACData = require("adaptivecards-templating");
@@ -63,6 +65,8 @@ module.exports = {
       return addUsers.addOneUser(userWebexId, newMessage[1] ? newMessage[1] : 'default');
     } else if (command.match(/buy/i)) {
       return buyStocks.buyStocks(userWebexId, newMessage[1], newMessage[2]);
+    } else if (command.match(/sell/i)) {
+      return sellStocks.sellStocks(userWebexId, newMessage[1], newMessage[2]);
     } else if (command.match(/portfolio/i)) {
       return getStocks.getOwnedStocks(userWebexId);
     } else {
@@ -166,27 +170,31 @@ function findStockPrice(stockSymbol, roomId) {
           responseObject["markdown"] =
             `#${responseBody.symbol}: \u0024${responseBody.latestPrice} (${responseBody.change}, ${responseBody.changePercent}%)`;
           
-          // Made adaptive card
-          var template = new ACData.Template(stockQuoteTemplate);
-          var context = new ACData.EvaluationContext();
-          context.$root = {
-            ...responseBody,
-            logoUrl: 'https://storage.googleapis.com/iex/api/logos/'+responseBody.symbol+'.png',
-            weekFiveTwoHigh: responseBody.week52High,
-            weekFiveTwoLow: responseBody.week52Low,
-            changePercent: responseBody.changePercent
-          }
-          console.log(context);
-          var card = template.expand(context);
-          responseObject["attachments"] = [
-            {
-              "contentType": "application/vnd.microsoft.card.adaptive",
-              "content": {
-                ...card
+          rp('https://storage.googleapis.com/iex/api/logos/'+responseBody.symbol+'.png', { method: 'GET' })
+            .then(res => {
+              // Made adaptive card
+              var template = new ACData.Template(stockQuoteTemplate);
+              var context = new ACData.EvaluationContext();
+              context.$root = {
+                ...responseBody,
+                logoUrl: res.length > 1 ? 'https://storage.googleapis.com/iex/api/logos/'+responseBody.symbol+'.png' : 'https://crosstec.org/media/contentbuilder/plugins/image_scale/placeholder.jpg',
+                weekFiveTwoHigh: responseBody.week52High,
+                weekFiveTwoLow: responseBody.week52Low,
+                changePercent: responseBody.changePercent,
+                marketCap: responseBody.marketCap.toLocaleString()
               }
-            }
-          ];
-          resolve(responseObject);
+              console.log(context);
+              var card = template.expand(context);
+              responseObject["attachments"] = [
+                {
+                  "contentType": "application/vnd.microsoft.card.adaptive",
+                  "content": {
+                    ...card
+                  }
+                }
+              ];
+              resolve(responseObject);
+          });
         } else {
           responseObject["markdown"] = "I couldn't find that stock";
           resolve(responseObject);

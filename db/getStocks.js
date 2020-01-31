@@ -10,16 +10,24 @@ exports.getOwnedStocks = (userWebexId) => {
         MongoClient.connect(url, function(err, client) {
             assert.equal(null, err);
             const db = client.db('stockbot');
-            var cursor = db.collection('trades').find({ webexId: userWebexId, sold: false });
+            var ownedStocksCursor = db.collection('trades').aggregate([
+                // First Stage
+                {
+                    $match : { webexId: userWebexId }
+                },
+                //Second Stage
+                {
+                    $group : {
+                        _id: "$symbol",
+                        totalQuantity: { $sum : "$quantity" }
+                    }
+                }
+            ]);
     
-            cursor.map(doc =>  { 
-                return { 'stock': doc.symbol, 'quantity': doc.quantity, 'purchasePrice': doc.purchasePrice }
-            }).toArray().then(
+            ownedStocksCursor.map(doc => doc).toArray().then(
                 result => {
-                    console.log(result);
                     resolve({
-                        roomId: process.env.ROOM_ID,
-                        markdown: JSON.stringify(result, null, 2)
+                        text: JSON.stringify(result, null, 2)
                     })
                 }
             );
