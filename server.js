@@ -10,6 +10,9 @@ var AdaptiveCards = require("adaptivecards");
 var moment = require("moment");
 var buyStocks = require('./db/buyStocks');
 var sellStocks = require('./db/sellStocks');
+var getStocks = require('./db/getStocks')
+const portfolioTemplate = require('./adaptiveCards/portfolio/portfolioTemplate');
+const portoflioData = require('./adaptiveCards/portfolio/portfolioData');
 
 const app = express();
 app.use(bodyParser.json());
@@ -38,18 +41,21 @@ app.post('/dev', (req, res) => {
   //   }, rej => res.send(rej));
 
   // createResponse.createResponse('stockbot $f', 'webexid', 'roomid');
-  sellStocks.sellStocks(actorId, 't', 1);
+  // sellStocks.sellStocks(actorId, 't', 1);
+  // res.sendStatus(200);
+
+  getStocks.getOwnedStocks(actorId);
   res.sendStatus(200);
 
-  // var template = new ACData.Template(stockQuoteTemplate);
+  // var template = new ACData.Template(portfolioTemplate);
   // var context = new ACData.EvaluationContext();
-  // findStockPrice(message, process.env.ROOM_ID)
-  //   .then(quoteData => {
+  // // findStockPrice(message, process.env.ROOM_ID)
+  //   // .then(quoteData => {
   //     context.$root = {
-  //       ...quoteData
+  //       ...portoflioData
   //     }
   //     var card = template.expand(context);
-  //     console.log(card);
+  //     console.log(JSON.stringify(card, null, 2));
   //     sendResponseMessage({
   //       roomId: process.env.ROOM_ID,
   //       text: 'test',
@@ -62,14 +68,14 @@ app.post('/dev', (req, res) => {
   //         }
   //       ]
   //     })
-  //     res.send(200);
-  //   })
-  //   .catch(err => {
-  //     sendResponseMessage({
-  //       roomId: process.env.ROOM_ID,
-  //       markdown: err
-  //     })
-  //   })
+  //     res.sendStatus(200);
+    // })
+    // .catch(err => {
+      // sendResponseMessage({
+      //   roomId: process.env.ROOM_ID,
+      //   markdown: err
+      // })
+    // })
 });
 
 app.listen(process.env.PORT, () => {

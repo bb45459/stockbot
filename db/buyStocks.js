@@ -31,11 +31,9 @@ exports.buyStocks = (userWebexId, stockSymbol, quantity) => {
                                     return db.collection('trades').insertOne({
                                         symbol: stockSymbol,
                                         webexId: userWebexId,
-                                        purchasePrice: price,
-                                        purchaseTime: new Date(),
-                                        quantity: Number.parseInt(quantity),
-                                        quantityOwned: Number.parseInt(quantity),
-                                        sold: false
+                                        priceAtExecution: price,
+                                        timeAtExecution: new Date(),
+                                        quantity: Number.parseInt(quantity)
                                     });
                                 } else {
                                     return Promise.reject('Not enough money');
@@ -46,7 +44,7 @@ exports.buyStocks = (userWebexId, stockSymbol, quantity) => {
                         });
                 })
                 .then(insertSuccess => {
-                    const totalPrice = insertSuccess.ops[0].purchasePrice * insertSuccess.ops[0].quantity;
+                    const totalPrice = insertSuccess.ops[0].priceAtExecution * insertSuccess.ops[0].quantity;
                     return db.collection('users').updateOne(
                         { webexId: userWebexId },
                         [

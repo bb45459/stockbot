@@ -1,5 +1,7 @@
 const MongoClient = require('mongodb').MongoClient;
 const assert = require('assert');
+var ACData = require("adaptivecards-templating");
+const portfolioTemplate = require('../adaptiveCards/portfolio/portfolioTemplate');
 
 exports.getOwnedStocks = (userWebexId) => {
     // Connection URL
@@ -10,25 +12,83 @@ exports.getOwnedStocks = (userWebexId) => {
         MongoClient.connect(url, function(err, client) {
             assert.equal(null, err);
             const db = client.db('stockbot');
-            var ownedStocksCursor = db.collection('trades').aggregate([
-                // First Stage
+            // var ownedStocksCursor = db.collection('trades').aggregate([
+            //     // First Stage
+            //     {
+            //         $match : { webexId: userWebexId }
+            //     },
+            //     //Second Stage
+            //     {
+            //         $group : {
+            //             _id: "$symbol",
+            //             totalQuantity: { $sum : "$quantity" },
+            //             // avgPrice: { $avg: { $multiply: ["$priceAtExecution", "$quantity"] } }
+            //             avgPrice: { $avg: "$priceAtExecution" }
+            //         }
+            //     }
+            // ]);
+
+            var ownedStocksCursor = db.collection('users').aggregate([
                 {
-                    $match : { webexId: userWebexId }
+                    $match: { webexId: userWebexId }
                 },
-                //Second Stage
+                { 
+                    $lookup: {
+                        from: 'trades',
+                        pipeline: [
+                            { 
+                                $match: { webexId: userWebexId } 
+                            },
+                            {
+                                $group : {
+                                    _id: "$symbol",
+                                    totalQuantity: { $sum : "$quantity" },
+                                    totalPrice: { $sum: { $multiply: ["$priceAtExecution", "$quantity"] } }
+                                }
+                            },
+                            {
+                                $project : {
+                                  symbol: "$_id",
+                                  totalQuantity: "$totalQuantity",
+                                  avgPrice: { $divide: ["$totalPrice", "$totalQuantity"] }
+                                }
+                            }
+                        ],
+                        as: 'stocks'
+                    }
+                },
                 {
-                    $group : {
-                        _id: "$symbol",
-                        totalQuantity: { $sum : "$quantity" }
+                    $project: {
+                        "displayName": "$displayName",
+                        "cash": "$cash",
+                        "stocks": "$stocks"
                     }
                 }
             ]);
+
+            // Then get the current price from the API
     
             ownedStocksCursor.map(doc => doc).toArray().then(
                 result => {
+                    console.log(JSON.stringify(result, null, 2));
+                    var template = new ACData.Template(portfolioTemplate);
+                    var context = new ACData.EvaluationContext();
+                    context.$root = {
+                        ...result[0],
+                        profileImage: "https://crosstec.org/media/contentbuilder/plugins/image_scale/placeholder.jpg"
+                    }
+                    var card = template.expand(context);
                     resolve({
-                        text: JSON.stringify(result, null, 2)
-                    })
+                        text: 'test',
+                        attachments: [
+                        {
+                            "contentType": "application/vnd.microsoft.card.adaptive",
+                            "content": {
+                            ...card
+                            }
+                        }
+                        ]
+                    });
                 }
             );
 
