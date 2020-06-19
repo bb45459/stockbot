@@ -1,4 +1,3 @@
-require('dotenv').config();
 const express = require('express');
 var request = require("request");
 var rp = require("request-promise");
@@ -8,11 +7,6 @@ const stockQuoteTemplate = require('./adaptiveCards/stockQuote/stockQuoteTemplat
 var ACData = require("adaptivecards-templating");
 var AdaptiveCards = require("adaptivecards");
 var moment = require("moment");
-var buyStocks = require('./db/buyStocks');
-var sellStocks = require('./db/sellStocks');
-var getStocks = require('./db/getStocks')
-const portfolioTemplate = require('./adaptiveCards/portfolio/portfolioTemplate');
-const portoflioData = require('./adaptiveCards/portfolio/portfolioData');
 
 const app = express();
 app.use(bodyParser.json());
@@ -21,12 +15,17 @@ app.get('/', (req, res) => {
   res.send('Hello Express app!')
 });
 
-app.post('/', (req) => {
+app.post('/', (req, res) => {
   let actorId = req.body.actorId;
   let messageId = req.body.data.id;
+  let resource = req.body.resource;
   if (actorId !== process.env.BOT_ID) {
     console.log("Not the bot message");
-    respondToUser(messageId, actorId);
+    if (resource === "messages") {
+      respondToUser(messageId, actorId); 
+    } else if (resource === "attachmentActions") {
+      // let data = await 
+    }
   }
 });
 
@@ -35,47 +34,35 @@ app.post('/dev', (req, res) => {
   let messageId = req.body.data.id;
   let message = req.body.data.message;
 
-  // buyStocks.buyStocks(actorId, 'tsla', 50000)
-  //   .then(result => {
-  //     res.send(result);
-  //   }, rej => res.send(rej));
-
-  // createResponse.createResponse('stockbot $f', 'webexid', 'roomid');
-  // sellStocks.sellStocks(actorId, 't', 1);
-  // res.sendStatus(200);
-
-  getStocks.getOwnedStocks(actorId);
-  res.sendStatus(200);
-
-  // var template = new ACData.Template(portfolioTemplate);
-  // var context = new ACData.EvaluationContext();
-  // // findStockPrice(message, process.env.ROOM_ID)
-  //   // .then(quoteData => {
-  //     context.$root = {
-  //       ...portoflioData
-  //     }
-  //     var card = template.expand(context);
-  //     console.log(JSON.stringify(card, null, 2));
-  //     sendResponseMessage({
-  //       roomId: process.env.ROOM_ID,
-  //       text: 'test',
-  //       attachments: [
-  //         {
-  //           "contentType": "application/vnd.microsoft.card.adaptive",
-  //           "content": {
-  //             ...card
-  //           }
-  //         }
-  //       ]
-  //     })
-  //     res.sendStatus(200);
-    // })
-    // .catch(err => {
-      // sendResponseMessage({
-      //   roomId: process.env.ROOM_ID,
-      //   markdown: err
-      // })
-    // })
+  var template = new ACData.Template(stockQuoteTemplate);
+  var context = new ACData.EvaluationContext();
+  findStockPrice(message, process.env.ROOM_ID)
+    .then(quoteData => {
+      context.$root = {
+        ...quoteData
+      }
+      var card = template.expand(context);
+      console.log(card);
+      sendResponseMessage({
+        roomId: process.env.ROOM_ID,
+        text: 'test',
+        attachments: [
+          {
+            "contentType": "application/vnd.microsoft.card.adaptive",
+            "content": {
+              ...card
+            }
+          }
+        ]
+      })
+      res.send(200);
+    })
+    .catch(err => {
+      sendResponseMessage({
+        roomId: process.env.ROOM_ID,
+        markdown: err
+      })
+    })
 });
 
 app.listen(process.env.PORT, () => {
@@ -99,6 +86,7 @@ function respondToUser(messageId, actorId) {
     //Get the user's message and send to response creator
     .then(function (body) {
       let message = body.text;
+      let user = body.personEmail;
       let roomId = body.roomId;
       console.log(body.text);
       return createResponse.createResponse(message, actorId, roomId);
@@ -106,6 +94,7 @@ function respondToUser(messageId, actorId) {
 
     //Get the response and post it back to the space
     .then(function (result) {
+      // console.log(result);
       sendResponseMessage(result);
     }, function (err) {
       console.log(err.error.message);
@@ -140,6 +129,38 @@ function sendResponseMessage(responseObject) {
     if (error) throw new Error(error);
     console.log("Response sent!");
     console.log(body);
+  });
+}
+
+function findStockPrice(stockSymbol, roomId) {
+  var responseObject = {
+    "roomId": roomId,
+  };
+  let apiUrl = `https://cloud.iexapis.com/stable/stock/${stockSymbol}/quote?token=${process.env.IEX_TOKEN}`;
+
+  console.log(apiUrl);
+
+  var options = {
+    url: apiUrl,
+  };
+  return new Promise(function(resolve, reject) {
+    //Do async job
+    request.get(options, function(err, resp, body) {
+      if (err) {
+        //throw new Error(err);
+        reject(err);
+      } else {
+        if (body != 'Unknown symbol') {
+          let responseBody = JSON.parse(body);
+          const d = moment(responseBody.latestUpdate).format('YYYY:MM:DDTHH:MM:SSZ');
+          responseBody.latestUpdateString = '2020-01-23T20:59:59Z';
+          resolve(responseBody);
+        } else {
+          responseObject["markdown"] = "I couldn't find that stock";
+          reject(responseObject);
+        }
+      }
+    });
   });
 }
 

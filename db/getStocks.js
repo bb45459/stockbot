@@ -68,14 +68,21 @@ exports.getOwnedStocks = (userWebexId) => {
 
             // Then get the current price from the API
     
-            ownedStocksCursor.map(doc => doc).toArray().then(
+            ownedStocksCursor.map(doc => {
+                doc.stocks.map(stock => {
+                    stock.symbol = stock.symbol.toUpperCase();
+                    stock.avgPrice = stock.avgPrice.toFixed(2);
+                })
+                doc.cash = doc.cash.toFixed(2);
+                return doc;
+            }).toArray().then(
                 result => {
                     console.log(JSON.stringify(result, null, 2));
                     var template = new ACData.Template(portfolioTemplate);
                     var context = new ACData.EvaluationContext();
                     context.$root = {
                         ...result[0],
-                        profileImage: "https://crosstec.org/media/contentbuilder/plugins/image_scale/placeholder.jpg"
+                        profileImage: "https://i0.kym-cdn.com/photos/images/original/001/262/983/2f0.png"
                     }
                     var card = template.expand(context);
                     resolve({

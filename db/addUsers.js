@@ -18,7 +18,10 @@ exports.addOneUser = (webexId, displayName) => {
             .then(function(result) {
                 // process result
                 console.log(JSON.stringify(result, null, 4));
-                resolve(result);
+                resolve({
+                  roomId: process.env.ROOM_ID,
+                  markdown: 'Added user!'
+                });
             })
 
             client.close();

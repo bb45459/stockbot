@@ -11,7 +11,7 @@ const MongoClient = require('mongodb').MongoClient;
 const assert = require('assert');
 var request = require('request');
 
-exports.buyStocks = (userWebexId, stockSymbol, quantity) => {
+exports.buyStocks = (userWebexId, stockSymbol, quantity=1) => {
     // Connection URL
     const url = `mongodb+srv://${process.env.MONGODB_USER}:${process.env.MONGODB_PW}@${process.env.MONGODB_HOSTLIST}/stockbot?retryWrites=true&w=majority`;
 

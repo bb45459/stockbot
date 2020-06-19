@@ -12,4 +12,5 @@ module.exports = {
   ],
   stonkey: 'https://i.redd.it/fk4fykhmay431.jpg',
   death: 'https://i.imgur.com/1pGnUqJ.jpg',
+  honks: 'https://i.redd.it/xqnszrre0xp31.jpg'
 }

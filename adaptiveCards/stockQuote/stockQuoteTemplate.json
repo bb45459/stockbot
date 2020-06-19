@@ -1,7 +1,7 @@
 {
     "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
     "type": "AdaptiveCard",
-    "version": "1.0",
+    "version": "1.1",
     "body": [
         {
             "type": "ColumnSet",
@@ -16,7 +16,8 @@
                     "size": "small"
                   }
                 ],
-                "width": "auto"
+                "width": "auto",
+                "fallback": "drop"
               },
               {
                 "type": "Column",
@@ -86,6 +87,10 @@
                                         {
                                             "title": "P/E Ratio",
                                             "value": "{peRatio} "
+                                        },
+                                        {
+                                            "title": "Market Cap",
+                                            "value": "{marketCap}"
                                         }
                                     ]
                                 }
@@ -95,5 +100,7 @@
                 }
             ]
         }
-    ]
+    ],
+  "actions": [
+	]
 }
