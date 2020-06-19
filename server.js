@@ -27,6 +27,7 @@ app.post('/', (req, res) => {
       // let data = await 
     }
   }
+  res.send(200);
 });
 
 app.post('/dev', (req, res) => {
