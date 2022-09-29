@@ -8,7 +8,8 @@ module.exports = {
     "https://assets.bwbx.io/images/users/iqjWHBFdfxIU/iJDLRm.3o2Iw/v0/1000x-1.jpg",
     "https://i.ytimg.com/vi/iLtEcfqbBco/maxresdefault.jpg",
     "https://cdn.dribbble.com/users/415975/screenshots/1740996/attachments/281613/Mona_Lisa_Bear_dribBig.jpg",
-    "https://i.imgur.com/FAtw00Q.jpg"
+    "https://i.imgur.com/FAtw00Q.jpg",
+    "https://makeavideo.studio/assets/A_confused_grizzly_bear_in_calculus_class.__21.webp"
   ],
   stonkey: 'https://i.redd.it/fk4fykhmay431.jpg',
   death: 'https://i.imgur.com/1pGnUqJ.jpg',
