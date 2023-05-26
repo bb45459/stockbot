@@ -22,7 +22,7 @@ app.post('/', (req, res) => {
   if (actorId !== process.env.BOT_ID) {
     console.log("Not the bot message");
     if (resource === "messages") {
-      respondToUser(messageId, actorId); 
+      respondToUser(messageId, actorId);
     } else if (resource === "attachmentActions") {
       // let data = await 
     }
@@ -130,38 +130,6 @@ function sendResponseMessage(responseObject) {
     if (error) throw new Error(error);
     console.log("Response sent!");
     console.log(body);
-  });
-}
-
-function findStockPrice(stockSymbol, roomId) {
-  var responseObject = {
-    "roomId": roomId,
-  };
-  let apiUrl = `https://cloud.iexapis.com/stable/stock/${stockSymbol}/quote?token=${process.env.IEX_TOKEN}`;
-
-  console.log(apiUrl);
-
-  var options = {
-    url: apiUrl,
-  };
-  return new Promise(function(resolve, reject) {
-    //Do async job
-    request.get(options, function(err, resp, body) {
-      if (err) {
-        //throw new Error(err);
-        reject(err);
-      } else {
-        if (body != 'Unknown symbol') {
-          let responseBody = JSON.parse(body);
-          const d = moment(responseBody.latestUpdate).format('YYYY:MM:DDTHH:MM:SSZ');
-          responseBody.latestUpdateString = '2020-01-23T20:59:59Z';
-          resolve(responseBody);
-        } else {
-          responseObject["markdown"] = "I couldn't find that stock";
-          reject(responseObject);
-        }
-      }
-    });
   });
 }
 

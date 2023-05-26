@@ -1,17 +1,17 @@
 {
-    "displayName": "Bill",
-    "profileImage": "https://crosstec.org/media/contentbuilder/plugins/image_scale/placeholder.jpg",
-    "cash": "10000",
-    "stocks": [
-        {
-            "symbol": "T",
-            "totalQuantity": "10",
-            "avgPrice": "35"
-        },
-        {
-            "symbol": "X",
-            "totalQuantity": "10",
-            "avgPrice": "35"
-        }
-    ]
+  "displayName": "Bill",
+  "profileImage": "https://crosstec.org/media/contentbuilder/plugins/image_scale/placeholder.jpg",
+  "cash": "10000",
+  "stocks": [
+    {
+      "symbol": "T",
+      "totalQuantity": "10",
+      "avgPrice": "35"
+    },
+    {
+      "symbol": "X",
+      "totalQuantity": "10",
+      "avgPrice": "35"
+    }
+  ]
 }

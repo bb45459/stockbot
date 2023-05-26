@@ -1,112 +1,111 @@
 {
-    "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
-    "type": "AdaptiveCard",
-    "version": "1.1",
-    "body": [
+  "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+  "type": "AdaptiveCard",
+  "version": "1.1",
+  "body": [
+    {
+      "type": "ColumnSet",
+      "columns": [
         {
-            "type": "ColumnSet",
-            "columns": [
-              {
-                "type": "Column",
-                "items": [
-                  {
-                    "type": "Image",
-                    "altText": "",
-                    "url": "{logoUrl}",
-                    "size": "small"
-                  }
-                ],
-                "width": "auto",
-                "fallback": "drop"
-              },
-              {
-                "type": "Column",
-                "items": [
-                  {
-                    "type": "TextBlock",
-                    "text": "{Name}",
-                    "size": "Medium",
-                    "wrap": true
-                  },
-                  {
-                      "type": "TextBlock",
-                      "text": "{symbol}",
-                      "isSubtle": true,
-                      "spacing": "Small",
-                      "wrap": true
-                  }
-                ],
-                "width": "stretch"
-              }
-            ]
+          "type": "Column",
+          "items": [
+            {
+              "type": "Image",
+              "altText": "",
+              "url": "{logoUrl}",
+              "size": "small"
+            }
+          ],
+          "width": "auto",
+          "fallback": "drop"
         },
         {
-          "type": "TextBlock",
-          "text": "{{DATE({latestUpdateString}, SHORT)}} {{TIME({latestUpdateString})}}",
-          "wrap": true
-        },
-        {
-            "type": "Container",
-            "spacing": "None",
-            "items": [
-                {
-                    "type": "ColumnSet",
-                    "columns": [
-                        {
-                            "type": "Column",
-                            "width": "stretch",
-                            "items": [
-                                {
-                                    "type": "TextBlock",
-                                    "text": "{price} ",
-                                    "size": "ExtraLarge"
-                                },
-                                {
-                                    "type": "TextBlock",
-                                    "text": "{if(change >= 0, '▲', '▼')} USD {change}",
-                                    "color": "{if(change >= 0, 'good', 'attention')}",
-                                    "spacing": "None"
-                                },
-                                {
-                                    "type": "TextBlock",
-                                    "text": "  {changePercent}",
-                                    "color": "{if(change >= 0, 'good', 'attention')}",
-                                    "spacing": "None"
-                                }
-                            ]
-                        },
-                        {
-                            "type": "Column",
-                            "width": "auto",
-                            "items": [
-                                {
-                                    "type": "FactSet",
-                                    "facts": [
-                                        {
-                                            "title": "52W High",
-                                            "value": "{weekFiveTwoHigh} "
-                                        },
-                                        {
-                                            "title": "52W Low",
-                                            "value": "{weekFiveTwoLow} "
-                                        },
-                                        {
-                                            "title": "P/E Ratio",
-                                            "value": "{PERatio} "
-                                        },
-                                        {
-                                            "title": "Market Cap",
-                                            "value": "{marketCap}"
-                                        }
-                                    ]
-                                }
-                            ]
-                        }
-                    ]
-                }
-            ]
+          "type": "Column",
+          "items": [
+            {
+              "type": "TextBlock",
+              "text": "{Name}",
+              "size": "Medium",
+              "wrap": true
+            },
+            {
+              "type": "TextBlock",
+              "text": "{symbol}",
+              "isSubtle": true,
+              "spacing": "Small",
+              "wrap": true
+            }
+          ],
+          "width": "stretch"
         }
-    ],
-  "actions": [
-	]
+      ]
+    },
+    {
+      "type": "TextBlock",
+      "text": "{{DATE({latestUpdateString}, SHORT)}} {{TIME({latestUpdateString})}}",
+      "wrap": true
+    },
+    {
+      "type": "Container",
+      "spacing": "None",
+      "items": [
+        {
+          "type": "ColumnSet",
+          "columns": [
+            {
+              "type": "Column",
+              "width": "stretch",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "{price} ",
+                  "size": "ExtraLarge"
+                },
+                {
+                  "type": "TextBlock",
+                  "text": "{if(change >= 0, '▲', '▼')} USD {change}",
+                  "color": "{if(change >= 0, 'good', 'attention')}",
+                  "spacing": "None"
+                },
+                {
+                  "type": "TextBlock",
+                  "text": "  {changePercent}",
+                  "color": "{if(change >= 0, 'good', 'attention')}",
+                  "spacing": "None"
+                }
+              ]
+            },
+            {
+              "type": "Column",
+              "width": "auto",
+              "items": [
+                {
+                  "type": "FactSet",
+                  "facts": [
+                    {
+                      "title": "52W High",
+                      "value": "{weekFiveTwoHigh} "
+                    },
+                    {
+                      "title": "52W Low",
+                      "value": "{weekFiveTwoLow} "
+                    },
+                    {
+                      "title": "P/E Ratio",
+                      "value": "{PERatio} "
+                    },
+                    {
+                      "title": "Market Cap",
+                      "value": "{marketCap}"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "actions": []
 }
