@@ -24,7 +24,7 @@
                 "items": [
                   {
                     "type": "TextBlock",
-                    "text": "{companyName}",
+                    "text": "{Name}",
                     "size": "Medium",
                     "wrap": true
                   },
@@ -58,12 +58,18 @@
                             "items": [
                                 {
                                     "type": "TextBlock",
-                                    "text": "{latestPrice} ",
+                                    "text": "{price} ",
                                     "size": "ExtraLarge"
                                 },
                                 {
                                     "type": "TextBlock",
-                                    "text": "{if(change >= 0, '▲', '▼')} USD {change} ({changePercent}%)",
+                                    "text": "{if(change >= 0, '▲', '▼')} USD {change}",
+                                    "color": "{if(change >= 0, 'good', 'attention')}",
+                                    "spacing": "None"
+                                },
+                                {
+                                    "type": "TextBlock",
+                                    "text": "  {changePercent}",
                                     "color": "{if(change >= 0, 'good', 'attention')}",
                                     "spacing": "None"
                                 }
@@ -86,7 +92,7 @@
                                         },
                                         {
                                             "title": "P/E Ratio",
-                                            "value": "{peRatio} "
+                                            "value": "{PERatio} "
                                         },
                                         {
                                             "title": "Market Cap",
