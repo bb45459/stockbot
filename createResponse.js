@@ -35,6 +35,9 @@ module.exports = {
     } else if (command.match(/^stonkey$/i)) {
       console.log('Stonkey!');
       return Promise.resolve({ files: images.stonkey });
+    } else if (command.match(/^honks$/i)) {
+      console.log('Honks!');
+      return Promise.resolve({ files: images.honks });
     } else if (command.match(/^wednesday$/i)) {
       console.log('Wednesday');
       let date = new Date();
