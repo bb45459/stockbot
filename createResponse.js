@@ -177,6 +177,8 @@ function findStockPrice(stockSymbol, roomId) {
           rp(ytdUrl, { method: 'GET' }).then(ytdRes => {
             const ytdBody = JSON.parse(ytdRes)
 
+            console.log(ytdBody);
+
             responseBody = { ...responseBody, ...ytdBody };
 
             responseBody["symbol"] = responseBody["01. symbol"];
