@@ -149,7 +149,8 @@ function findStockPrice(stockSymbol, roomId) {
     "roomId": roomId,
   };
 
-  let apiUrl = `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${stockSymbol}&apikey=${process.env.ALPHA_VANTAGE_TOKEN}`;
+  // let apiUrl = `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${stockSymbol}&apikey=${process.env.ALPHA_VANTAGE_TOKEN}`;
+  let apiUrl = `https://api.twelvedata.com/quote?symbol=${stockSymbol}&apikey=${process.env.TWELVE_DATA_TOKEN}`
   let ytdUrl = `https://www.alphavantage.co/query?function=OVERVIEW&symbol=${stockSymbol}&apikey=${process.env.ALPHA_VANTAGE_TOKEN}`;
 
   console.log(apiUrl);
@@ -164,15 +165,15 @@ function findStockPrice(stockSymbol, roomId) {
       if (err) {
         reject(err);
       } else {
-        if (Object.entries(JSON.parse(body)["Global Quote"]).length > 0) {
-          let responseBody = JSON.parse(body)["Global Quote"];
+        if (JSON.parse(body)["symbol"]) {
+          let responseBody = JSON.parse(body);
           console.log(responseBody);
           // 'YYYY-MM-DDTHH:MM:SSZ'
-          const d = moment(new Date()).format();
+          const d = moment(new Date(responseBody.timestamp)).format();
           responseBody.latestUpdateString = d;
-          responseBody.changePercent = responseBody["10. change percent"] ? responseBody["10. change percent"] : 'N/A';
+          responseBody.changePercent = responseBody.percent_change ? responseBody.percent_change : 'N/A';
           responseObject["markdown"] =
-            `#${responseBody["01. symbol"]}: \u0024${responseBody["05. price"]} (${responseBody["09. change"]}, ${responseBody["10. change percent"]})`;
+            `#${responseBody.symbol}: \u0024${responseBody.close} (${responseBody.change}, ${responseBody.percent_change}%)`;
 
           rp(ytdUrl, { method: 'GET' }).then(ytdRes => {
             const ytdBody = JSON.parse(ytdRes)
@@ -181,18 +182,17 @@ function findStockPrice(stockSymbol, roomId) {
 
             responseBody = { ...responseBody, ...ytdBody };
 
-            responseBody["symbol"] = responseBody["01. symbol"];
-            responseBody["open"] = parseFloat(responseBody["02. open"]);
-            responseBody["high"] = parseFloat(responseBody["03. high"]);
-            responseBody["low"] = parseFloat(responseBody["04. low"]);
-            responseBody["price"] = parseFloat(responseBody["05. price"]);
-            responseBody["volume"] = parseInt(responseBody["06. volume"]);
-            responseBody["latestTradingDay"] = responseBody["07. latest trading day"];
-            responseBody["previous_close"] = parseFloat(responseBody["08. previous close"]);
-            responseBody["change"] = parseFloat(responseBody["09. change"]);
-            responseBody["changePercent"] = responseBody["10. change percent"];
+            responseBody["symbol"] = responseBody["symbol"];
+            responseBody["open"] = parseFloat(responseBody["open"]);
+            responseBody["high"] = parseFloat(responseBody["high"]);
+            responseBody["low"] = parseFloat(responseBody["low"]);
+            responseBody["price"] = parseFloat(responseBody["close"]);
+            responseBody["volume"] = parseInt(responseBody["volume"]);
+            responseBody["previous_close"] = parseFloat(responseBody["previous_close"]);
+            responseBody["change"] = parseFloat(responseBody["change"]);
+            responseBody["changePercent"] = responseBody["percent_change"];
 
-            rp('https://storage.googleapis.com/iex/api/logos/' + responseBody["01. symbol"] + '.png', { method: 'GET' })
+            rp('https://storage.googleapis.com/iex/api/logos/' + responseBody["symbol"] + '.png', { method: 'GET' })
               .then(res => {
                 // Made adaptive card
                 var template = new ACData.Template(stockQuoteTemplate);
@@ -200,8 +200,8 @@ function findStockPrice(stockSymbol, roomId) {
                 context.$root = {
                   ...responseBody,
                   logoUrl: res.length > 1 ? 'https://storage.googleapis.com/iex/api/logos/' + responseBody["01. symbol"] + '.png' : 'https://crosstec.org/media/contentbuilder/plugins/image_scale/placeholder.jpg',
-                  weekFiveTwoHigh: parseFloat(responseBody["52WeekHigh"]),
-                  weekFiveTwoLow: parseFloat(responseBody["52WeekLow"]),
+                  weekFiveTwoHigh: parseFloat(responseBody["fifty_two_week"]["high"]),
+                  weekFiveTwoLow: parseFloat(responseBody["fifty_two_week"]["low"]),
                   changePercent: responseBody.changePercent,
                   marketCap: parseInt(ytdBody.MarketCapitalization).toLocaleString()
                 }
