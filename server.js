@@ -1,18 +1,15 @@
 const express = require('express');
 var request = require("request");
-var rp = require("request-promise");
 var bodyParser = require('body-parser');
 var createResponse = require('./createResponse');
 const stockQuoteTemplate = require('./adaptiveCards/stockQuote/stockQuoteTemplate');
 var ACData = require("adaptivecards-templating");
-var AdaptiveCards = require("adaptivecards");
-var moment = require("moment");
 const axios = require("axios");
 
 const app = express();
 app.use(bodyParser.json());
 
-app.get('/', (req, res) => {
+app.get('/', (_req, res) => {
   res.send('Hello Express app!')
 });
 
@@ -89,10 +86,8 @@ async function respondToUser(messageId, actorId) {
   axios.get(url, { headers: options.headers })
     //Get the user's message and send to response creator
     .then(function(res) {
-      console.log(res);
       const body = res.data;
       const message = body.text;
-      const user = body.personEmail;
       const roomId = body.roomId;
       console.log(message);
       return createResponse.createResponse(message, actorId, roomId);
@@ -102,6 +97,7 @@ async function respondToUser(messageId, actorId) {
     .then(function(result) {
       return sendResponseMessage(result);
     }, function(err) {
+      // can't find message, bot not @mentioned in message
       console.log(err.response.data);
     })
 
@@ -130,7 +126,7 @@ function sendResponseMessage(responseObject) {
     json: true
   };
 
-  request(options, function(error, response, body) {
+  request(options, function(error, _response, body) {
     if (error) throw new Error(error);
     console.log("Response sent!");
     console.log(body);

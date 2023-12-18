@@ -14,7 +14,7 @@ var ACData = require("adaptivecards-templating");
 
 module.exports = {
 
-  createResponse: function (message, userWebexId, roomId) {
+  createResponse: function(message, userWebexId, roomId) {
     //Scrub the @stockbot tag from the message
     let newMessage = message;
     newMessage = newMessage.split(/ +/);
@@ -92,9 +92,9 @@ function findStockYTD(stockSymbol, roomId) {
   var options = {
     url: apiUrl,
   };
-  return new Promise(function (resolve, reject) {
+  return new Promise(function(resolve, reject) {
     //Do async job
-    request.get(options, function (err, resp, body) {
+    request.get(options, function(err, resp, body) {
       if (err) {
         //throw new Error(err);
         reject(err);
@@ -125,9 +125,9 @@ function findStockInfo(stockSymbol, roomId) {
   var options = {
     url: apiUrl,
   };
-  return new Promise(function (resolve, reject) {
+  return new Promise(function(resolve, reject) {
     //Do async job
-    request.get(options, function (err, resp, body) {
+    request.get(options, function(err, resp, body) {
       if (err) {
         reject(err);
       } else {
@@ -162,44 +162,32 @@ async function findStockPrice(stockSymbolIn, roomId) {
   let ytdUrl = `https://www.alphavantage.co/query?function=OVERVIEW&symbol=${stockSymbol}&apikey=${process.env.ALPHA_VANTAGE_TOKEN}`;
   const logoUrl = `https://api.twelvedata.com/logo?symbol=${stockSymbol}&apikey=${process.env.TWELVE_DATA_TOKEN}`
 
-  // const stockData = await axios.get(apiUrl);
   const ytd = await axios.get(ytdUrl);
   const logo = await axios.get(logoUrl);
 
   const logoUrlResolved = logo.data?.logo_base ??
-    logo.data?.url ?? 
+    logo.data?.url ??
     'https://crosstec.org/media/contentbuilder/plugins/image_scale/placeholder.jpg';
-
-  console.log(logo.data);
-  console.log(ytd.data);
-  // console.log(stockData.data);
-  
-  // console.log(apiUrl);
-  // console.log(ytdUrl);
 
   var options = {
     url: apiUrl,
   };
-  return new Promise(function (resolve, reject) {
+  return new Promise(function(resolve, reject) {
     //Do async job
-    request.get(options, function (err, resp, body) {
+    request.get(options, function(err, resp, body) {
       if (err) {
         reject(err);
       } else {
         if (JSON.parse(body)["symbol"]) {
           let responseBody = JSON.parse(body);
-          console.log(responseBody);
           // 'YYYY-MM-DDTHH:MM:SSZ'
           const d = moment(new Date(responseBody.timestamp * 1000)).format();
-          console.log(d);
           responseBody.latestUpdateString = d;
           responseBody.changePercent = responseBody.percent_change ? responseBody.percent_change : 'N/A';
           responseObject["markdown"] =
             `#${responseBody.symbol}: \u0024${responseBody.close} (${responseBody.change}, ${responseBody.percent_change}%)`;
 
           const ytdBody = ytd.data;
-
-          console.log(ytdBody);
 
           responseBody = { ...responseBody, ...ytdBody };
 
