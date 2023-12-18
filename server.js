@@ -7,6 +7,7 @@ const stockQuoteTemplate = require('./adaptiveCards/stockQuote/stockQuoteTemplat
 var ACData = require("adaptivecards-templating");
 var AdaptiveCards = require("adaptivecards");
 var moment = require("moment");
+const axios = require("axios");
 
 const app = express();
 app.use(bodyParser.json());
@@ -70,7 +71,7 @@ app.listen(process.env.PORT, () => {
   console.log('server started at ', process.env.PORT);
 });
 
-function respondToUser(messageId, actorId) {
+async function respondToUser(messageId, actorId) {
   let url = 'https://api.ciscospark.com/v1/messages/' + messageId;
   var options = {
     method: 'GET',
@@ -83,25 +84,28 @@ function respondToUser(messageId, actorId) {
     json: true
   };
 
-  rp(options)
+
+  // rp(options)
+  axios.get(url, { headers: options.headers })
     //Get the user's message and send to response creator
-    .then(function (body) {
-      let message = body.text;
-      let user = body.personEmail;
-      let roomId = body.roomId;
-      console.log(body.text);
+    .then(function(res) {
+      console.log(res);
+      const body = res.data;
+      const message = body.text;
+      const user = body.personEmail;
+      const roomId = body.roomId;
+      console.log(message);
       return createResponse.createResponse(message, actorId, roomId);
     })
 
     //Get the response and post it back to the space
-    .then(function (result) {
-      // console.log(result);
-      sendResponseMessage(result);
-    }, function (err) {
-      console.log(err.error.message);
+    .then(function(result) {
+      return sendResponseMessage(result);
+    }, function(err) {
+      console.log(err.response.data);
     })
 
-    .catch(function (err) {
+    .catch(function(err) {
       // API call failed...
       sendResponseMessage('Error parsing message');
       console.log(err);
@@ -126,7 +130,7 @@ function sendResponseMessage(responseObject) {
     json: true
   };
 
-  request(options, function (error, response, body) {
+  request(options, function(error, response, body) {
     if (error) throw new Error(error);
     console.log("Response sent!");
     console.log(body);

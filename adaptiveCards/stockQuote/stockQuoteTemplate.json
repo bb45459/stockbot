@@ -24,7 +24,7 @@
           "items": [
             {
               "type": "TextBlock",
-              "text": "{Name}",
+              "text": "{name}",
               "size": "Medium",
               "wrap": true
             },
@@ -69,7 +69,7 @@
                 },
                 {
                   "type": "TextBlock",
-                  "text": "  {changePercent}",
+                  "text": "  {changePercent}%",
                   "color": "{if(change >= 0, 'good', 'attention')}",
                   "spacing": "None"
                 }

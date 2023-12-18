@@ -1,4 +1,5 @@
 require('dotenv').config();
+const axios = require('axios');
 var request = require('request');
 var rp = require('request-promise');
 var images = require('./images');
@@ -144,17 +145,37 @@ function findStockInfo(stockSymbol, roomId) {
   });
 }
 
-function findStockPrice(stockSymbol, roomId) {
+async function findStockPrice(stockSymbolIn, roomId) {
   let responseObject = {
     "roomId": roomId,
   };
 
-  // let apiUrl = `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${stockSymbol}&apikey=${process.env.ALPHA_VANTAGE_TOKEN}`;
+  // utility lookups for cryptos
+  const overrides = {
+    'btc': 'btc/usd',
+    'eth': 'eth/usd',
+  }
+
+  const stockSymbol = overrides[stockSymbolIn.toLowerCase()] ?? stockSymbolIn;
+
   let apiUrl = `https://api.twelvedata.com/quote?symbol=${stockSymbol}&apikey=${process.env.TWELVE_DATA_TOKEN}`
   let ytdUrl = `https://www.alphavantage.co/query?function=OVERVIEW&symbol=${stockSymbol}&apikey=${process.env.ALPHA_VANTAGE_TOKEN}`;
+  const logoUrl = `https://api.twelvedata.com/logo?symbol=${stockSymbol}&apikey=${process.env.TWELVE_DATA_TOKEN}`
 
-  console.log(apiUrl);
-  console.log(ytdUrl);
+  // const stockData = await axios.get(apiUrl);
+  const ytd = await axios.get(ytdUrl);
+  const logo = await axios.get(logoUrl);
+
+  const logoUrlResolved = logo.data?.logo_base ??
+    logo.data?.url ?? 
+    'https://crosstec.org/media/contentbuilder/plugins/image_scale/placeholder.jpg';
+
+  console.log(logo.data);
+  console.log(ytd.data);
+  // console.log(stockData.data);
+  
+  // console.log(apiUrl);
+  // console.log(ytdUrl);
 
   var options = {
     url: apiUrl,
@@ -169,54 +190,50 @@ function findStockPrice(stockSymbol, roomId) {
           let responseBody = JSON.parse(body);
           console.log(responseBody);
           // 'YYYY-MM-DDTHH:MM:SSZ'
-          const d = moment(new Date(responseBody.timestamp)).format();
+          const d = moment(new Date(responseBody.timestamp * 1000)).format();
+          console.log(d);
           responseBody.latestUpdateString = d;
           responseBody.changePercent = responseBody.percent_change ? responseBody.percent_change : 'N/A';
           responseObject["markdown"] =
             `#${responseBody.symbol}: \u0024${responseBody.close} (${responseBody.change}, ${responseBody.percent_change}%)`;
 
-          rp(ytdUrl, { method: 'GET' }).then(ytdRes => {
-            const ytdBody = JSON.parse(ytdRes)
+          const ytdBody = ytd.data;
 
-            console.log(ytdBody);
+          console.log(ytdBody);
 
-            responseBody = { ...responseBody, ...ytdBody };
+          responseBody = { ...responseBody, ...ytdBody };
 
-            responseBody["symbol"] = responseBody["symbol"];
-            responseBody["open"] = parseFloat(responseBody["open"]);
-            responseBody["high"] = parseFloat(responseBody["high"]);
-            responseBody["low"] = parseFloat(responseBody["low"]);
-            responseBody["price"] = parseFloat(responseBody["close"]);
-            responseBody["volume"] = parseInt(responseBody["volume"]);
-            responseBody["previous_close"] = parseFloat(responseBody["previous_close"]);
-            responseBody["change"] = parseFloat(responseBody["change"]);
-            responseBody["changePercent"] = responseBody["percent_change"];
+          responseBody["symbol"] = responseBody["symbol"];
+          responseBody["open"] = parseFloat(responseBody["open"]);
+          responseBody["high"] = parseFloat(responseBody["high"]);
+          responseBody["low"] = parseFloat(responseBody["low"]);
+          responseBody["price"] = parseFloat(responseBody["close"]);
+          responseBody["volume"] = parseInt(responseBody["volume"]);
+          responseBody["previous_close"] = parseFloat(responseBody["previous_close"]);
+          responseBody["change"] = parseFloat(responseBody["change"]);
+          responseBody["changePercent"] = responseBody["percent_change"];
 
-            rp('https://storage.googleapis.com/iex/api/logos/' + responseBody["symbol"] + '.png', { method: 'GET' })
-              .then(res => {
-                // Made adaptive card
-                var template = new ACData.Template(stockQuoteTemplate);
-                var context = new ACData.EvaluationContext();
-                context.$root = {
-                  ...responseBody,
-                  logoUrl: res.length > 1 ? 'https://storage.googleapis.com/iex/api/logos/' + responseBody["01. symbol"] + '.png' : 'https://crosstec.org/media/contentbuilder/plugins/image_scale/placeholder.jpg',
-                  weekFiveTwoHigh: parseFloat(responseBody["fifty_two_week"]["high"]),
-                  weekFiveTwoLow: parseFloat(responseBody["fifty_two_week"]["low"]),
-                  changePercent: responseBody.changePercent,
-                  marketCap: parseInt(ytdBody.MarketCapitalization).toLocaleString()
-                }
-                var card = template.expand(context);
-                responseObject["attachments"] = [
-                  {
-                    "contentType": "application/vnd.microsoft.card.adaptive",
-                    "content": {
-                      ...card
-                    }
-                  }
-                ];
-                resolve(responseObject);
-              });
-          })
+          // Made adaptive card
+          var template = new ACData.Template(stockQuoteTemplate);
+          var context = new ACData.EvaluationContext();
+          context.$root = {
+            ...responseBody,
+            logoUrl: logoUrlResolved,
+            weekFiveTwoHigh: parseFloat(responseBody["fifty_two_week"]["high"]),
+            weekFiveTwoLow: parseFloat(responseBody["fifty_two_week"]["low"]),
+            changePercent: responseBody.changePercent,
+            marketCap: parseInt(ytdBody.MarketCapitalization).toLocaleString()
+          }
+          var card = template.expand(context);
+          responseObject["attachments"] = [
+            {
+              "contentType": "application/vnd.microsoft.card.adaptive",
+              "content": {
+                ...card
+              }
+            }
+          ];
+          resolve(responseObject);
         } else {
           responseObject["markdown"] = "I couldn't find that stock";
           resolve(responseObject);
