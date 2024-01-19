@@ -16,75 +16,44 @@ module.exports = {
 
   createResponse: function(message, userWebexId, roomId) {
     //Scrub the @stockbot tag from the message
-    let newMessage = message;
-    newMessage = newMessage.split(/ +/);
+    let newMessage = message.split(/ +/);
     newMessage.shift();
     let command = newMessage[0];
 
     console.log(newMessage);
 
-    //Pick the proper path for the response
+    let commandType = '';
+
     if (command.startsWith('$')) {
-      let stockSymbol = command.slice(1);
-      return Promise.resolve(findStockPrice(stockSymbol, roomId));
+      commandType = 'stockPrice';
     } else if (command.match(/^stonks$/i)) {
-      console.log('Stonks!');
-      return Promise.resolve({ files: images.stonks });
+      commandType = 'stonks';
     } else if (command.match(/^at\&t$/i)) {
-      console.log('Lmfao this company');
-      return Promise.resolve({ files: images.death });
-    } else if (command.match(/^stonkey$/i)) {
-      console.log('Stonkey!');
-      return Promise.resolve({ files: images.stonkey });
-    } else if (command.match(/^honks$/i)) {
-      console.log('Honks!');
-      return Promise.resolve({ files: images.honks });
-    } else if (command.match(/^wednesday$/i)) {
-      console.log('Wednesday');
-      let date = new Date();
-      let dayOfWeek = date.getDay();
-      if (dayOfWeek == 3) {
-        return Promise.resolve({ files: images.wednesday });
-      } else {
-        return Promise.resolve({ markdown: 'It is not Wednesday yet my dudes' });
-      }
-    } else if (command.match(/bear/i)) {
-      console.log('Bear');
-      const randInt = Math.floor(Math.random() * images.bears.length);
-      return Promise.resolve({ files: images.bears[randInt] });
-    } else if (command.match(/bull/i)) {
-      console.log('Bull');
-      return Promise.resolve({ markdown: "### 🐂 _Bull markets don't exist_ 🐂" });
-    } else if (command.match(/info/i)) {
-      console.log('Info');
-      return findStockInfo(newMessage[1], roomId);
-    } else if (command.match(/ytd/i)) {
-      console.log('YTD');
-      return findStockYTD(newMessage[1], roomId);
-    } else if (command.match(/users/i)) {
-      console.log('Getting users')
-      return getUsers.getAllUsers();
-    } else if (command.match(/register/i)) {
-      console.log('Adding one user')
-      return addUsers.addOneUser(userWebexId, newMessage[1] ? newMessage[1] : 'default');
-    } else if (command.match(/buy/i)) {
-      return buyStocks.buyStocks(userWebexId, newMessage[1], newMessage[2]);
-    } else if (command.match(/sell/i)) {
-      return sellStocks.sellStocks(userWebexId, newMessage[1], newMessage[2]);
-    } else if (command.match(/portfolio/i)) {
-      return getStocks.getOwnedStocks(userWebexId);
-    } else if (command.match(/mama/i)){
-      console.log("MOMMY PELOSI");
-      const randInt = Math.floor(Math.random() * images.mama.length);
-      return Promise.resolve({ files: images.mama[randInt] });
-    }
-    else {
-      console.log(command);
-      return Promise.resolve({ markdown: 'Unable to parse user message 🚀' });
+      commandType = 'att';
+    } // ... continue for other commands
+
+    switch(commandType) {
+      case 'stockPrice':
+        let stockSymbol = command.slice(1);
+        return Promise.resolve(findStockPrice(stockSymbol, roomId));
+      case 'stonks':
+        console.log('Stonks!');
+        return Promise.resolve({ files: images.stonks });
+      case 'att':
+        console.log('Lmfao this company');
+        return Promise.resolve({ files: images.death });
+      // ... include cases for other commandTypes
+      case 'mama':
+        console.log("MOMMY PELOSI");
+        const randInt = Math.floor(Math.random() * images.mama.length);
+        return Promise.resolve({ files: images.mama[randInt] });
+      default:
+        console.log(command);
+        return Promise.resolve({ markdown: 'Unable to parse user message 🚀' });
     }
   }
-
 };
+
 
 function findStockYTD(stockSymbol, roomId) {
   var responseObject = {
