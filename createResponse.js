@@ -73,7 +73,12 @@ module.exports = {
       return sellStocks.sellStocks(userWebexId, newMessage[1], newMessage[2]);
     } else if (command.match(/portfolio/i)) {
       return getStocks.getOwnedStocks(userWebexId);
-    } else {
+    } else if (command.match(/mama/i)){
+      console.log("MOMMY PELOSI");
+      const randInt = Math.floor(Math.random() * images.mama.length);
+      return Promise.resolve({ files: images.mama[randInt] });
+    }
+    else {
       console.log(command);
       return Promise.resolve({ markdown: 'Unable to parse user message 🚀' });
     }
