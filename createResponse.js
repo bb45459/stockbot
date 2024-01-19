@@ -15,7 +15,7 @@ var ACData = require("adaptivecards-templating");
 module.exports = {
 
   createResponse: function(message, userWebexId, roomId) {
-    //Scrub the @stockbot tag from the message
+
     let newMessage = message.split(/ +/);
     newMessage.shift();
     let command = newMessage[0];
@@ -30,7 +30,7 @@ module.exports = {
       commandType = 'stonks';
     } else if (command.match(/^at\&t$/i)) {
       commandType = 'att';
-    } // ... continue for other commands
+    } 
 
     switch(commandType) {
       case 'stockPrice':
@@ -42,7 +42,6 @@ module.exports = {
       case 'att':
         console.log('Lmfao this company');
         return Promise.resolve({ files: images.death });
-      // ... include cases for other commandTypes
       case 'mama':
         console.log("MOMMY PELOSI");
         const randInt = Math.floor(Math.random() * images.mama.length);
